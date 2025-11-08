@@ -1,16 +1,55 @@
-<!-- src/app/authentication/login/login.html -->
-<div class="login-root">
-  <form class="login-card" (ngSubmit)="submit()" aria-label="login form">
-    <h2>Iniciar sesión</h2>
-    <label>
-      <span>Email</span>
-      <input type="email" [(ngModel)]="email" name="email" required />
-    </label>
-    <label>
-      <span>Contraseña</span>
-      <input type="password" [(ngModel)]="password" name="password" required />
-    </label>
-    <button type="submit" [disabled]="loading">{{ loading ? 'Entrando...' : 'Entrar' }}</button>
-    <p class="muted">¿Olvidaste tu contraseña? <a>Recuperar</a></p>
-  </form>
+<div class="login-container">
+  <div class="background"></div>
+
+  <div class="login-wrapper">
+    <div class="welcome-section">
+      <h1>Bienvenido</h1>
+      <p>
+        Esperamos que disfrutes del servicio de anticipación de residuos que
+        ofrecemos.
+      </p>
+    </div>
+
+    <div class="form-section">
+      <h3>Iniciar sesión</h3>
+      <p class="subtitle">¿Aún no tienes cuenta? <a href="#">Crea una</a></p>
+
+      <div class="form-group">
+        <input
+          [(ngModel)]="email"
+          type="text"
+          placeholder="Correo electrónico"
+        />
+      </div>
+
+      <div class="form-group">
+        <input
+          [(ngModel)]="password"
+          type="password"
+          placeholder="Contraseña"
+        />
+      </div>
+
+      <div class="forgot-password">
+        <a href="#">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button (click)="login()">Iniciar sesión</button>
+
+      <div class="divider">
+        <span></span>
+        <p>O regístrate con</p>
+        <span></span>
+      </div>
+
+      <div class="social-buttons">
+        <button class="facebook-btn">
+          <i class="fab fa-facebook-f"></i> Facebook
+        </button>
+        <button class="google-btn">
+          <i class="fab fa-google"></i> Google
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
