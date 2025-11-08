@@ -1,1 +1,16 @@
-<p>login works!</p>
+<!-- src/app/authentication/login/login.html -->
+<div class="login-root">
+  <form class="login-card" (ngSubmit)="submit()" aria-label="login form">
+    <h2>Iniciar sesión</h2>
+    <label>
+      <span>Email</span>
+      <input type="email" [(ngModel)]="email" name="email" required />
+    </label>
+    <label>
+      <span>Contraseña</span>
+      <input type="password" [(ngModel)]="password" name="password" required />
+    </label>
+    <button type="submit" [disabled]="loading">{{ loading ? 'Entrando...' : 'Entrar' }}</button>
+    <p class="muted">¿Olvidaste tu contraseña? <a>Recuperar</a></p>
+  </form>
+</div>

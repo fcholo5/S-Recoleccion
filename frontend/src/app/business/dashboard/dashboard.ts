@@ -1,11 +1,19 @@
+// src/app/dashboard/dashboard.ts
 import { Component } from '@angular/core';
+import { Navbar } from '../shared/navbar/navbar';
+import { Sidebar } from '../shared/sidebar/sidebar';
+import { RouterOutlet, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss',
+  styleUrls: ['./dashboard.scss']
 })
 export class Dashboard {
-
+  // estados / datos demo
+  totalRutas = 12;
+  proximoPaso = 'Barrio Centro - 07:30';
 }

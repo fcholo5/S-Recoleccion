@@ -1,0 +1,39 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e293b;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #334155;
+
+  h2 {
+    color: #f1f5f9;
+    font-weight: 600;
+  }
+
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    input {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      color: #f1f5f9;
+      outline: none;
+
+      &:focus {
+        border-color: #22c55e;
+      }
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #cbd5e1;
+    }
+  }
+}

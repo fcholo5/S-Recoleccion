@@ -1,0 +1,60 @@
+.sidebar {
+  width: 240px;
+  background-color: #1e293b;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    img {
+      width: 28px;
+      height: 28px;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #22c55e;
+    }
+  }
+
+  nav {
+    margin-top: 2rem;
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #cbd5e1;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background-color: #334155;
+          color: #22c55e;
+        }
+
+        i {
+          font-size: 1.1rem;
+        }
+      }
+    }
+  }
+
+  .footer {
+    color: #64748b;
+    font-size: 0.8rem;
+    margin-top: auto;
+  }
+}
