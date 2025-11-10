@@ -32,15 +32,16 @@ jobs:
       - name: 🏗️ Compilar frontend Angular
         run: |
           cd frontend
-          ng build --configuration production --base-href /
+          # Base href apunta a la ruta pública de Apache
+          ng build --configuration production --base-href /fabian_site/ --verbose
           cd ..
 
       # ----------------- PREPARAR ARCHIVOS PARA DEPLOY -----------------
-      - name: 🧩 Preparar archivos para deploy
+      - name: 🧩 Preparar archivos finales
         run: |
           mkdir -p deploy-frontend
-          # copia solo los archivos generados del build
-          cp -r frontend/dist/frontend/browser/* deploy-frontend/
+          # Copia solo los archivos generados del build
+          cp -r frontend/dist/fabian_site/browser/* deploy-frontend/
 
       # ----------------- DEBUG -----------------
       - name: 🧾 Ver contenido listo para deploy
@@ -60,7 +61,7 @@ jobs:
           target: "/var/www/fabian_site/"
           overwrite: true
 
-      # ----------------- SSH POST DEPLOY -----------------
+      # ----------------- AJUSTAR PERMISOS Y RECARGAR APACHE -----------------
       - name: ⚙️ Ajustar permisos y reiniciar Apache
         uses: appleboy/ssh-action@v1
         with:
