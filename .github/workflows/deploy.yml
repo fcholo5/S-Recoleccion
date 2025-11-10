@@ -78,6 +78,5 @@ jobs:
           port: ${{ secrets.SERVER_PORT || '22' }}
           script: |
             echo "✅ Archivos frontend desplegados correctamente"
-            sudo chmod -R 775 /var/www/fabian_site/deploy-frontend
-            sudo chown -R www-data:www-data /var/www/fabian_site/deploy-frontend
-            sudo systemctl reload apache2
+            chmod -R 775 /var/www/fabian_site/deploy-frontend
+            hown -R www-data:www-data /var/www/fabian_site/deploy-frontend
