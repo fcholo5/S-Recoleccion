@@ -32,16 +32,16 @@ jobs:
       - name: 🏗️ Compilar frontend Angular
         run: |
           cd frontend
-          # Base href apunta a la ruta pública de Apache
-          ng build --configuration production --base-href /fabian_site/ --verbose
+          # Ajusta base-href según quieras servirlo desde /fabian_site/ o /fabian_site/deploy-frontend/
+          ng build --configuration production --base-href /fabian_site/
           cd ..
 
       # ----------------- PREPARAR ARCHIVOS PARA DEPLOY -----------------
       - name: 🧩 Preparar archivos finales
         run: |
           mkdir -p deploy-frontend
-          # Copia solo los archivos generados del build
-          cp -r frontend/dist/fabian_site/browser/* deploy-frontend/
+          # Copiar solo los archivos finales del build al deploy-frontend
+          cp -r frontend/dist/frontend-app/browser/* deploy-frontend/
 
       # ----------------- DEBUG -----------------
       - name: 🧾 Ver contenido listo para deploy
@@ -58,7 +58,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || '22' }}
           source: "deploy-frontend/**"
-          target: "/var/www/fabian_site/"
+          target: "/var/www/fabian_site/deploy-frontend/"
           overwrite: true
 
       # ----------------- AJUSTAR PERMISOS Y RECARGAR APACHE -----------------
@@ -71,6 +71,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT || '22' }}
           script: |
             echo "✅ Archivos frontend desplegados correctamente"
-            sudo chmod -R 775 /var/www/fabian_site
-            sudo chown -R www-data:www-data /var/www/fabian_site
+            sudo chmod -R 775 /var/www/fabian_site/deploy-frontend
+            sudo chown -R www-data:www-data /var/www/fabian_site/deploy-frontend
             sudo systemctl reload apache2
+            
