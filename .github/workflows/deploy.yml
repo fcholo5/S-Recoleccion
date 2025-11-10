@@ -32,18 +32,23 @@ jobs:
       - name: 🏗️ Compilar frontend Angular
         run: |
           cd frontend
-          # Ajusta base-href según quieras servirlo desde /fabian_site/ o /fabian_site/deploy-frontend/
+          # Base-href apunta a la ruta pública de Apache
           ng build --configuration production --base-href /fabian_site/
           cd ..
+
+      # ----------------- DEBUG: Ver carpeta generada -----------------
+      - name: 🧾 Listar carpeta de build
+        run: |
+          ls -R frontend/dist/
 
       # ----------------- PREPARAR ARCHIVOS PARA DEPLOY -----------------
       - name: 🧩 Preparar archivos finales
         run: |
           mkdir -p deploy-frontend
-          # Copiar solo los archivos finales del build al deploy-frontend
+          # ⚠️ Cambia 'frontend-app' al nombre que veas en el paso anterior si es distinto
           cp -r frontend/dist/frontend-app/browser/* deploy-frontend/
 
-      # ----------------- DEBUG -----------------
+      # ----------------- DEBUG FINAL -----------------
       - name: 🧾 Ver contenido listo para deploy
         run: |
           echo "=== FRONTEND FINAL ==="
@@ -74,4 +79,3 @@ jobs:
             sudo chmod -R 775 /var/www/fabian_site/deploy-frontend
             sudo chown -R www-data:www-data /var/www/fabian_site/deploy-frontend
             sudo systemctl reload apache2
-            
