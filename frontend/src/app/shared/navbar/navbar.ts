@@ -9,4 +9,5 @@ import { Component, Input } from '@angular/core';
 })
 export class Navbar {
   @Input() title = 'Dashboard';
+pageTitle: any;
 }

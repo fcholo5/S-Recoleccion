@@ -1,0 +1,60 @@
+.sidebar {
+  width: 240px;
+  background-color: #0f172a;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem 0;
+  border-right: 1px solid #1e293b;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0 1.5rem;
+
+    img {
+      width: 28px;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      color: #ffffff;
+      font-weight: 600;
+    }
+  }
+
+  .menu {
+    list-style: none;
+    padding: 0;
+    margin-top: 2rem;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.8rem 1.8rem;
+      color: #cbd5e1;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.3s ease;
+
+      &:hover,
+      &.active {
+        background-color: #1e293b;
+        color: #22c55e;
+      }
+
+      i {
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .footer {
+    padding: 1.2rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #64748b;
+  }
+}
