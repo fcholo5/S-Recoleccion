@@ -32,7 +32,7 @@ jobs:
       - name: 🏗️ Compilar frontend Angular
         run: |
           cd frontend
-          ng build --configuration production --base-href /fabian_site/
+          ng build --configuration production --base-href /fabian_site/ --verbose
           cd ..
 
       # ----------------- DEBUG: Verificar carpeta dist -----------------
@@ -40,25 +40,7 @@ jobs:
         run: |
           ls -R frontend/dist/
 
-      # ----------------- PREPARAR ARCHIVOS PARA DEPLOY -----------------
-      - name: 🧩 Preparar archivos finales
-        run: |
-            # Crear carpeta temporal para deploy
-            mkdir -p deploy-frontend-temp
-            # Copiar archivos de Angular a la carpeta temporal
-            cp -r frontend/dist/frontend/browser/* deploy-frontend-temp/
-            cp frontend/dist/frontend/3rdpartylicenses.txt deploy-frontend-temp/ || true
-            cp frontend/dist/frontend/prerendered-routes.json deploy-frontend-temp/ || true
-
-
-
-      # ----------------- DEBUG FINAL -----------------
-      - name: 🧾 Ver contenido listo para deploy
-        run: |
-          echo "=== FRONTEND FINAL ==="
-          ls -R deploy-frontend || true
-
-      # ----------------- SUBIR ARCHIVOS AL SERVIDOR -----------------
+      # ----------------- SUBIR ARCHIVOS DIRECTAMENTE -----------------
       - name: 📤 Subir frontend a servidor Apache2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -66,8 +48,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || '22' }}
-          source: "deploy-frontend/**"
-          target: "/var/www/fabian_site/deploy-frontend/"
+          source: "frontend/dist/frontend/browser/**"
+          target: "/var/www/fabian_site/"
           overwrite: true
 
       # ----------------- AJUSTAR PERMISOS (SIN SUDO) -----------------
@@ -81,7 +63,7 @@ jobs:
           script: |
             echo "✅ Archivos frontend desplegados correctamente"
             # Ajustar permisos solo dentro de /var/www/fabian_site/
-            chmod -R 775 /var/www/fabian_site/deploy-frontend
-            chown -R $USER:$USER /var/www/fabian_site/deploy-frontend
+            chmod -R 775 /var/www/fabian_site/
+            chown -R $USER:$USER /var/www/fabian_site/
             # Recargar Apache (solo si tienes permisos)
             systemctl reload apache2 || echo "⚠️ No se pudo recargar Apache, usuario sin permisos"
