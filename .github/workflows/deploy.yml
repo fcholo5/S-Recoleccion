@@ -32,7 +32,7 @@ jobs:
       - name: 🏗️ Compilar frontend Angular
         run: |
           cd frontend
-          ng build --configuration production --base-href /fabian_site/ --verbose
+          ng build --configuration production --base-href ./ --verbose
           cd ..
 
       # ----------------- DEBUG: Verificar carpeta dist -----------------
