@@ -44,9 +44,11 @@ jobs:
       # ----------------- PREPARAR ARCHIVOS PARA DEPLOY -----------------
       - name: 🧩 Preparar archivos finales
         run: |
-          mkdir -p deploy-frontend
-          # ⚠️ Cambia 'frontend-app' al nombre que veas en el paso anterior si es distinto
-          cp -r frontend/dist/frontend-app/browser/* deploy-frontend/
+            mkdir -p deploy-frontend
+            cp -r frontend/dist/frontend/browser/* deploy-frontend/
+            cp frontend/dist/frontend/3rdpartylicenses.txt deploy-frontend/ || true
+            cp frontend/dist/frontend/prerendered-routes.json deploy-frontend/ || true
+
 
       # ----------------- DEBUG FINAL -----------------
       - name: 🧾 Ver contenido listo para deploy
