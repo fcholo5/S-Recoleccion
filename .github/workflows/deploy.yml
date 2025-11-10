@@ -23,7 +23,7 @@ jobs:
       # ----------------- DEPENDENCIAS -----------------
       - name: 📦 Instalar dependencias frontend
         run: |
-          cd front-end
+          cd frontend
           npm ci
           npm install -g @angular/cli
           cd ..
@@ -72,3 +72,4 @@ jobs:
             sudo chmod -R 775 /var/www/fabian_site
             sudo chown -R www-data:www-data /var/www/fabian_site
             sudo systemctl reload apache2
+ 
