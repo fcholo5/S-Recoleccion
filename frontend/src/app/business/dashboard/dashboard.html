@@ -1,32 +1,10 @@
-<div class="dashboard">
-  <div class="cards">
-    <div class="card">
-      <h4>Total rutas</h4>
-      <p class="value">12</p>
-    </div>
-    <div class="card">
-      <h4>Próximo paso</h4>
-      <p class="highlight">Barrio Centro - 07:30</p>
-    </div>
-    <div class="card">
-      <h4>Notificaciones</h4>
-      <p class="value">5</p>
-    </div>
-  </div>
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
 
-  <div class="cards">
-    <div class="card">
-      <h4>Rutas próximas</h4>
-      <p>Lista breve de las rutas del día...</p>
-    </div>
-    <div class="card">
-      <h4>Vehículos</h4>
-      <p>3 disponibles, 2 en mantenimiento.</p>
-    </div>
-  </div>
+  <main class="dashboard-main">
 
-  <div class="card map">
-    <h4>Mapa / Agenda</h4>
-    <div class="map-area">[ Aquí iría un mapa o calendario ]</div>
-  </div>
+    <section class="dashboard-content">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
 </div>

@@ -15,11 +15,28 @@ export const appRoutes: Routes = [
     path: 'dashboard',
     loadComponent: () =>
       import('./business/dashboard/dashboard').then(m => m.Dashboard),
-  },
-  {
-    path: 'usuarios',
-    loadComponent: () =>
-      import('./business/usuarios/usuarios').then(m => m.Usuarios),
+    children: [
+      {
+        path: 'rutas',
+        loadComponent: () =>
+          import('./business/rutas/rutas').then(m => m.RutasComponent)
+      },
+      {
+        path: 'vehiculos',
+        loadComponent: () =>
+          import('./business/vehiculos/vehiculos').then(m => m.Vehiculos)
+      },
+      {
+        path: 'usuarios',
+        loadComponent: () =>
+          import('./business/usuarios/usuarios').then(m => m.Usuarios)
+      },
+      {
+        path: '',
+        redirectTo: 'rutas',
+        pathMatch: 'full'
+      }
+    ]
   },
   {
     path: '**',

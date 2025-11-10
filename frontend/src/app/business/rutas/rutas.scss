@@ -1,0 +1,143 @@
+.rutas-container {
+  color: #f1f5f9;
+  background: #0f172a;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+  max-width: 100%;
+  overflow-x: auto;
+  transition: all 0.3s ease;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #22c55e;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .loader {
+    color: #94a3b8;
+    text-align: center;
+    font-style: italic;
+  }
+
+  .error-msg {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .nueva-ruta-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    input[type='text'] {
+      flex: 1;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #f8fafc;
+      outline: none;
+
+      &:focus {
+        border-color: #22c55e;
+      }
+    }
+
+    input[type='color'] {
+      width: 50px;
+      height: 50px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    button {
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+
+      &:hover {
+        background: #16a34a;
+      }
+
+      &:disabled {
+        background: #475569;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .tabla-rutas {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1e293b;
+    border-radius: 10px;
+    overflow: hidden;
+
+    th,
+    td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+    }
+
+    thead {
+      background: #334155;
+      color: #e2e8f0;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #334155;
+
+      &:hover {
+        background: #0f172a;
+      }
+    }
+
+    .color-preview {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      margin-right: 8px;
+      border: 1px solid #475569;
+    }
+  }
+
+  .no-rutas {
+    text-align: center;
+    padding: 2rem;
+    color: #94a3b8;
+    font-style: italic;
+  }
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .nueva-ruta-form {
+    flex-direction: column;
+    align-items: stretch;
+
+    input,
+    button {
+      width: 100%;
+    }
+  }
+
+  .tabla-rutas {
+    font-size: 0.9rem;
+  }
+}

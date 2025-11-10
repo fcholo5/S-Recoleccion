@@ -1,60 +1,114 @@
+/* ===== SIDEBAR ===== */
 .sidebar {
   width: 240px;
-  background-color: #1e293b;
-  padding: 1.5rem;
+  background-color: #2f3e46;
+  color: #e9ecef;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  padding: 1.5rem 1rem;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+}
 
-  .logo {
-    display: flex;
+/* ===== LOGO ===== */
+.sidebar .logo {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.sidebar .logo img {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.4rem;
+}
+
+.sidebar .logo h1 {
+  font-size: 1.2rem;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* ===== MENÚ ===== */
+.menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu ul li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #dfe6eb;
+  font-size: 0.95rem;
+}
+
+.menu ul li i {
+  font-size: 1.2rem;
+  color: #b0c4d4;
+  transition: color 0.3s ease;
+}
+
+.menu ul li:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+}
+
+.menu ul li:hover i {
+  color: #ffffff;
+}
+
+.menu ul li.active {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.menu ul li.active i {
+  color: #ffffff;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
     align-items: center;
-    gap: 0.5rem;
-
-    img {
-      width: 28px;
-      height: 28px;
-    }
-
-    h1 {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #22c55e;
-    }
+    justify-content: space-around;
+    padding: 0.8rem;
   }
 
-  nav {
-    margin-top: 2rem;
+  .sidebar .logo {
+    display: none;
+  }
 
-    ul {
-      list-style: none;
-      padding: 0;
+  .menu ul {
+    display: flex;
+    gap: 1rem;
+  }
 
-      li {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        cursor: pointer;
-        color: #cbd5e1;
-        transition: all 0.3s ease;
-
-        &:hover {
-          background-color: #334155;
-          color: #22c55e;
-        }
-
-        i {
-          font-size: 1.1rem;
-        }
-      }
-    }
+  .menu ul li {
+    padding: 0.6rem;
   }
 
   .footer {
-    color: #64748b;
-    font-size: 0.8rem;
-    margin-top: auto;
+    display: none;
   }
 }

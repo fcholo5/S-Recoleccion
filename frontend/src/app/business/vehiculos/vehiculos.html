@@ -1,0 +1,39 @@
+<div class="cards">
+  <div class="card green">
+    <h4>Total rutas</h4>
+    <p class="value">12</p>
+  </div>
+  <div class="card light-green">
+    <h4>Vehículos activos</h4>
+    <p class="value">7</p>
+  </div>
+  <div class="card orange">
+    <h4>Notificaciones</h4>
+    <p class="value">5</p>
+  </div>
+</div>
+
+<div class="card table">
+  <h4>Lista de Vehículos</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Placa</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let v of vehiculos">
+        <td>{{ v.id }}</td>
+        <td>{{ v.placa }}</td>
+        <td>{{ v.estado }}</td>
+        <td>
+          <button class="btn-edit">Editar</button>
+          <button class="btn-delete">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
