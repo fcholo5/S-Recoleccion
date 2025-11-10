@@ -32,11 +32,10 @@ jobs:
       - name: 🏗️ Compilar frontend Angular
         run: |
           cd frontend
-          # Base-href apunta a la ruta pública de Apache
           ng build --configuration production --base-href /fabian_site/
           cd ..
 
-      # ----------------- DEBUG: Ver carpeta generada -----------------
+      # ----------------- DEBUG: Verificar carpeta dist -----------------
       - name: 🧾 Listar carpeta de build
         run: |
           ls -R frontend/dist/
@@ -44,11 +43,10 @@ jobs:
       # ----------------- PREPARAR ARCHIVOS PARA DEPLOY -----------------
       - name: 🧩 Preparar archivos finales
         run: |
-            mkdir -p deploy-frontend
-            cp -r frontend/dist/frontend/browser/* deploy-frontend/
-            cp frontend/dist/frontend/3rdpartylicenses.txt deploy-frontend/ || true
-            cp frontend/dist/frontend/prerendered-routes.json deploy-frontend/ || true
-
+          mkdir -p deploy-frontend
+          cp -r frontend/dist/frontend/browser/* deploy-frontend/
+          cp frontend/dist/frontend/3rdpartylicenses.txt deploy-frontend/ || true
+          cp frontend/dist/frontend/prerendered-routes.json deploy-frontend/ || true
 
       # ----------------- DEBUG FINAL -----------------
       - name: 🧾 Ver contenido listo para deploy
@@ -68,8 +66,8 @@ jobs:
           target: "/var/www/fabian_site/deploy-frontend/"
           overwrite: true
 
-      # ----------------- AJUSTAR PERMISOS Y RECARGAR APACHE -----------------
-      - name: ⚙️ Ajustar permisos y reiniciar Apache
+      # ----------------- AJUSTAR PERMISOS (SIN SUDO) -----------------
+      - name: ⚙️ Ajustar permisos en servidor
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -78,5 +76,8 @@ jobs:
           port: ${{ secrets.SERVER_PORT || '22' }}
           script: |
             echo "✅ Archivos frontend desplegados correctamente"
+            # Ajustar permisos solo dentro de /var/www/fabian_site/
             chmod -R 775 /var/www/fabian_site/deploy-frontend
-            hown -R www-data:www-data /var/www/fabian_site/deploy-frontend
+            chown -R $USER:$USER /var/www/fabian_site/deploy-frontend
+            # Recargar Apache (solo si tienes permisos)
+            systemctl reload apache2 || echo "⚠️ No se pudo recargar Apache, usuario sin permisos"
