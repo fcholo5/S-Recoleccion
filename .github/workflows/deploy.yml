@@ -43,10 +43,13 @@ jobs:
       # ----------------- PREPARAR ARCHIVOS PARA DEPLOY -----------------
       - name: 🧩 Preparar archivos finales
         run: |
-            # No necesitamos deploy-frontend
+            # Crear carpeta temporal para deploy
+            mkdir -p deploy-frontend-temp
+            # Copiar archivos de Angular a la carpeta temporal
             cp -r frontend/dist/frontend/browser/* deploy-frontend-temp/
             cp frontend/dist/frontend/3rdpartylicenses.txt deploy-frontend-temp/ || true
             cp frontend/dist/frontend/prerendered-routes.json deploy-frontend-temp/ || true
+
 
 
       # ----------------- DEBUG FINAL -----------------
