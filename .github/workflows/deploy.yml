@@ -43,10 +43,11 @@ jobs:
       # ----------------- PREPARAR ARCHIVOS PARA DEPLOY -----------------
       - name: 🧩 Preparar archivos finales
         run: |
-          mkdir -p deploy-frontend
-          cp -r frontend/dist/frontend/browser/* deploy-frontend/
-          cp frontend/dist/frontend/3rdpartylicenses.txt deploy-frontend/ || true
-          cp frontend/dist/frontend/prerendered-routes.json deploy-frontend/ || true
+            # No necesitamos deploy-frontend
+            cp -r frontend/dist/frontend/browser/* deploy-frontend-temp/
+            cp frontend/dist/frontend/3rdpartylicenses.txt deploy-frontend-temp/ || true
+            cp frontend/dist/frontend/prerendered-routes.json deploy-frontend-temp/ || true
+
 
       # ----------------- DEBUG FINAL -----------------
       - name: 🧾 Ver contenido listo para deploy
