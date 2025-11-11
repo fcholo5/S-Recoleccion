@@ -19,37 +19,22 @@ export class Login {
   auth: any;
   router: any;
 
-   login(): void {
-    if (!this.email || !this.password) {
-      this.errorMessage = 'Debes ingresar correo y contraseña';
-      return;
-    }
-
-    this.loading = true;
-    this.errorMessage = '';
-
+  login(): void {
     this.auth.login(this.email, this.password).subscribe({
-      next: (response: { token: string; role: string; }) => {
-        this.loading = false;
-
-        if (response?.token) {
-          localStorage.setItem('authToken', response.token);
-          const role = response.role || 'Usuario';
-
-          if (role === 'Administrador') {
-            this.router.navigate(['/dashboard']);
-          } else {
-            this.router.navigate(['/profile']);
-          }
-        } else {
-          this.errorMessage = 'No se recibió token del backend';
+      next: (response: { token: any; role: any; })=> {
+        console.log('Entró')
+        const token = response.token;
+        const role = response.role
+        // const payload = JSON.parse(atob(token.split('.')[1]));
+        // const role = payload.role;
+        localStorage.setItem('token', token);
+        if(role === 'Administrador') {
+          this.router.navigate(['/dashboard'])
+        }else {
+          this.router.navigate(['/profile'])
         }
       },
-      error: (err: { message: string; }) => {
-        this.loading = false;
-        this.errorMessage = err.message || 'Error al iniciar sesión';
-        console.error('Login error', err);
-      }
-    });
+      error: (err: any) => console.error('Login failed', err)
+    })
   }
 }
