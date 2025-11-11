@@ -2,12 +2,12 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class Auth {
   private tokenKey = 'authToken'; // Solo necesitamos la clave para el token de acceso
 
   constructor(private httpClient: HttpClient, private router: Router) { }

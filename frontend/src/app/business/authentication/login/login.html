@@ -1,58 +1,59 @@
+<!-- src/app/authentication/login/login.html -->
 <div class="login-container">
+  <!-- Fondo -->
   <div class="background">
     <img src="assets/eco-truck.png" alt="Camión ecológico" class="eco-truck" />
   </div>
 
+  <!-- Contenedor principal del login -->
   <div class="login-wrapper">
+    <!-- Sección de bienvenida -->
     <div class="welcome-section">
       <h1>Bienvenido</h1>
-      <p>
-        Esperamos que disfrutes del servicio de anticipación de residuos que
-        ofrecemos.
-      </p>
+      <p>Esperamos que disfrutes del servicio de anticipación de residuos que ofrecemos.</p>
     </div>
 
+    <!-- Sección del formulario -->
     <div class="form-section">
       <h3>Iniciar sesión</h3>
       <p class="subtitle">
         ¿Aún no tienes cuenta? <a href="#">Crea una</a>
       </p>
 
+      <!-- Mensaje de error -->
+      <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+      <!-- Input de email -->
       <div class="form-group">
-        <input
-          [(ngModel)]="email"
-          type="text"
-          placeholder="Correo electrónico"
-        />
+        <input [(ngModel)]="email" type="text" placeholder="Correo electrónico" />
       </div>
 
+      <!-- Input de contraseña -->
       <div class="form-group">
-        <input
-          [(ngModel)]="password"
-          type="password"
-          placeholder="Contraseña"
-        />
+        <input [(ngModel)]="password" type="password" placeholder="Contraseña" />
       </div>
 
+      <!-- Olvidaste contraseña -->
       <div class="forgot-password">
         <a href="#">¿Olvidaste tu contraseña?</a>
       </div>
 
-      <button (click)="login()">Iniciar sesión</button>
+      <!-- Botón login -->
+      <button (click)="login()" [disabled]="loading">
+        {{ loading ? 'Iniciando...' : 'Iniciar sesión' }}
+      </button>
 
+      <!-- Divider -->
       <div class="divider">
         <span></span>
         <p>O regístrate con</p>
         <span></span>
       </div>
 
+      <!-- Botones sociales -->
       <div class="social-buttons">
-        <button class="facebook-btn">
-          <i class="fab fa-facebook-f"></i> Facebook
-        </button>
-        <button class="google-btn">
-          <i class="fab fa-google"></i> Google
-        </button>
+        <button class="facebook-btn"><i class="fab fa-facebook-f"></i> Facebook</button>
+        <button class="google-btn"><i class="fab fa-google"></i> Google</button>
       </div>
     </div>
   </div>

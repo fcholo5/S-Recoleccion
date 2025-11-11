@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { LoginComponent } from './login';
+import { Login } from './login'; // Importa tu componente standalone
+import { RouterTestingModule } from '@angular/router/testing'; // Para el Router
+import { FormsModule } from '@angular/forms'; // Para ngModel
 
 describe('LoginComponent', () => {
-  let component: LoginComponent;
-  let fixture: ComponentFixture<LoginComponent>;
+  let component: Login;
+  let fixture: ComponentFixture<Login>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LoginComponent]
-    })
-    .compileComponents();
+      imports: [Login, RouterTestingModule, FormsModule] // Agregamos FormsModule y RouterTestingModule
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(LoginComponent);
+    fixture = TestBed.createComponent(Login);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
