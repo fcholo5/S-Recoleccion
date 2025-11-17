@@ -1,60 +1,40 @@
-<!-- src/app/authentication/login/login.html -->
 <div class="login-container">
-  <!-- Fondo -->
-  <div class="background">
-    <img src="assets/eco-truck.png" alt="Camión ecológico" class="eco-truck" />
-  </div>
 
-  <!-- Contenedor principal del login -->
-  <div class="login-wrapper">
-    <!-- Sección de bienvenida -->
-    <div class="welcome-section">
-      <h1>Bienvenido</h1>
-      <p>Esperamos que disfrutes del servicio de anticipación de residuos que ofrecemos.</p>
+  <div class="login-box">
+
+    <div class="left">
+      <h1>Bienvenido a JP Ambiental</h1>
+      <p>Juntos mantenemos nuestras calles limpias y nuestro planeta vivo.</p>
     </div>
 
-    <!-- Sección del formulario -->
-    <div class="form-section">
-      <h3>Iniciar sesión</h3>
-      <p class="subtitle">
-        ¿Aún no tienes cuenta? <a href="#">Crea una</a>
-      </p>
+    <div class="right">
+      <h2>Iniciar sesión</h2>
 
-      <!-- Mensaje de error -->
-      <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+      <form (submit)="onSubmit()">
 
-      <!-- Input de email -->
-      <div class="form-group">
-        <input [(ngModel)]="email" type="text" placeholder="Correo electrónico" />
-      </div>
+        <input
+          type="email"
+          placeholder="Correo electrónico"
+          [(ngModel)]="email"
+          name="email"
+          required
+        />
 
-      <!-- Input de contraseña -->
-      <div class="form-group">
-        <input [(ngModel)]="password" type="password" placeholder="Contraseña" />
-      </div>
+        <input
+          type="password"
+          placeholder="Contraseña"
+          [(ngModel)]="password"
+          name="password"
+          required
+        />
 
-      <!-- Olvidaste contraseña -->
-      <div class="forgot-password">
-        <a href="#">¿Olvidaste tu contraseña?</a>
-      </div>
+        <a class="forgot">¿Olvidaste tu contraseña?</a>
 
-      <!-- Botón login -->
-      <button (click)="login()" [disabled]="loading">
-        {{ loading ? 'Iniciando...' : 'Iniciar sesión' }}
-      </button>
+        <button type="submit">Iniciar sesión</button>
+      </form>
 
-      <!-- Divider -->
-      <div class="divider">
-        <span></span>
-        <p>O regístrate con</p>
-        <span></span>
-      </div>
-
-      <!-- Botones sociales -->
-      <div class="social-buttons">
-        <button class="facebook-btn"><i class="fab fa-facebook-f"></i> Facebook</button>
-        <button class="google-btn"><i class="fab fa-google"></i> Google</button>
-      </div>
     </div>
+
   </div>
+
 </div>

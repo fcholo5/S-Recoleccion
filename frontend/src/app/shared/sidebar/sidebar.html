@@ -1,28 +1,31 @@
-<aside class="sidebar">
-  <div class="logo">
-    <img  alt="BuenaAseo" />
-    <h2>BuenaAseo</h2>
-  </div>
+<div class="logo">
+  <img src="assets/img/truck-icon.svg" alt="logo">
+  <span>BuenaAseo</span>
+</div>
 
-  <ul class="menu">
-    <li routerLink="/dashboard" routerLinkActive="active">
-      <i class="bi bi-house-door"></i> Dashboard
-    </li>
-    <li routerLink="/rutas" routerLinkActive="active">
-      <i class="bi bi-map"></i> Rutas
-    </li>
-    <li routerLink="/vehiculos" routerLinkActive="active">
-      <i class="bi bi-truck"></i> Vehículos
-    </li>
-    <li routerLink="/notificaciones" routerLinkActive="active">
-      <i class="bi bi-bell"></i> Notificaciones
-    </li>
-    <li routerLink="/usuarios" routerLinkActive="active">
-      <i class="bi bi-people"></i> Usuarios
-    </li>
-  </ul>
+<nav class="menu">
+  <a routerLink="/dashboard" routerLinkActive="active">
+    <i class="icon">🏠</i> Dashboard
+  </a>
 
-  <div class="footer">
-    <p>Conecta y notifica<br />a tus vecinos</p>
-  </div>
-</aside>
+  <a routerLink="/rutas" routerLinkActive="active">
+    <i class="icon">♻️</i> Rutas
+  </a>
+
+  <a routerLink="/vehiculos" routerLinkActive="active">
+    <i class="icon">🚚</i> Vehículos
+  </a>
+
+  <a routerLink="/notificaciones" routerLinkActive="active">
+    <i class="icon">🔔</i> Notificaciones
+  </a>
+
+  <a routerLink="/usuarios" routerLinkActive="active">
+    <i class="icon">👤</i> Usuarios
+  </a>
+</nav>
+
+<div class="footer">
+  Conecta y notifica<br>
+  a tus vecinos
+</div>

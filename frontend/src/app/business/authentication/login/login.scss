@@ -1,288 +1,91 @@
-/* ============================
-   ESTILOS BASE - LOGIN
-============================ */
 .login-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
   height: 100vh;
-  background-color: #e8f5e9;
-  font-family: "Poppins", sans-serif;
-  overflow: hidden;
-  position: relative;
+  background-image: url("../../../../assets/img/fondo-login.png");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-box {
+  width: 80%;
+  max-width: 1100px;
+  display: flex;
+  justify-content: space-between;
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
   padding: 20px;
 }
 
-/* ====== FONDO CON CAMIÓN ====== */
-.background {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
+.left {
+  width: 50%;
+  color: black;
+  margin-top: 100px;
+
+  h1 {
+    font-size: 38px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 17px;
+    opacity: .8;
+  }
+}
+
+.right {
   width: 40%;
-  background: linear-gradient(180deg, #a5d6a7 0%, #e8f5e9 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.eco-truck {
-  width: 60%;
-  max-width: 350px;
-  animation: moveTruck 4s ease-in-out infinite alternate;
-}
-
-@keyframes moveTruck {
-  0% {
-    transform: translateX(-10px);
-  }
-  100% {
-    transform: translateX(10px);
-  }
-}
-
-/* ====== CUADRO PRINCIPAL ====== */
-.login-wrapper {
-  display: flex;
-  flex-direction: row;
-  background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  width: 70%;
-  max-width: 900px;
-  z-index: 2;
-  position: relative;
-}
-
-/* ====== BIENVENIDA ====== */
-.welcome-section {
-  flex: 1;
-  background-color: #4caf50;
-  color: white;
-  padding: 60px 40px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 35px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  text-align: left;
-}
 
-.welcome-section h1 {
-  font-size: 2.2rem;
-  margin-bottom: 10px;
-}
+  h2 {
+    font-size: 26px;
+    margin-bottom: 20px;
+  }
 
-.welcome-section p {
-  font-size: 1.1rem;
-  opacity: 0.9;
-}
-
-/* ====== FORMULARIO ====== */
-.form-section {
-  flex: 1.2;
-  padding: 60px 50px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.form-section h3 {
-  font-size: 1.8rem;
-  color: #2e7d32;
-  margin-bottom: 10px;
-}
-
-.subtitle {
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-  color: #555;
-}
-
-.subtitle a {
-  color: #4caf50;
-  font-weight: 600;
-}
-
-/* ====== CAMPOS ====== */
-.form-group input {
-  width: 100%;
-  padding: 12px 15px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  border: 1px solid #c8e6c9;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.form-group input:focus {
-  border-color: #4caf50;
-  outline: none;
-  box-shadow: 0px 0px 5px rgba(76, 175, 80, 0.3);
-}
-
-/* ====== BOTONES ====== */
-button {
-  width: 100%;
-  padding: 12px;
-  background-color: #4caf50;
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #388e3c;
-}
-
-/* ====== OLVIDÉ CONTRASEÑA ====== */
-.forgot-password {
-  text-align: right;
-  margin-bottom: 15px;
-}
-
-.forgot-password a {
-  color: #2e7d32;
-  font-size: 0.9rem;
-}
-
-/* ====== DIVISOR Y REDES ====== */
-.divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 20px 0;
-}
-
-.divider span {
-  flex: 1;
-  height: 1px;
-  background-color: #c8e6c9;
-}
-
-.divider p {
-  padding: 0 10px;
-  font-size: 0.9rem;
-  color: #757575;
-}
-
-.social-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.facebook-btn,
-.google-btn {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  color: white;
-}
-
-.facebook-btn {
-  background-color: #3b5998;
-}
-
-.google-btn {
-  background-color: #db4437;
-}
-
-/* ============================
-   RESPONSIVE DESIGN
-============================ */
-
-/* === Tablets (≤1024px) === */
-@media (max-width: 1024px) {
-  .login-wrapper {
+  form {
+    display: flex;
     flex-direction: column;
-    width: 90%;
+    gap: 15px;
   }
 
-  .background {
-    display: none;
-  }
-
-  .welcome-section {
-    padding: 40px 30px;
-    text-align: center;
-  }
-
-  .form-section {
-    padding: 40px 30px;
-  }
-
-  .eco-truck {
-    max-width: 250px;
-  }
-}
-
-/* === Móviles medianos (≤768px) === */
-@media (max-width: 768px) {
-  .login-container {
-    flex-direction: column;
-    height: auto;
-    padding: 20px 10px;
-  }
-
-  .login-wrapper {
-    width: 100%;
-    box-shadow: none;
-    border-radius: 10px;
-  }
-
-  .welcome-section {
-    display: none;
-  }
-
-  .form-section {
-    padding: 30px 20px;
-  }
-
-  .form-section h3 {
-    font-size: 1.5rem;
-    text-align: center;
-  }
-
-  .subtitle {
-    text-align: center;
-  }
-
-  .social-buttons {
-    flex-direction: column;
-  }
-}
-
-/* === Móviles pequeños (≤480px) === */
-@media (max-width: 480px) {
-  .form-section {
-    padding: 20px 15px;
-  }
-
-  .form-section h3 {
-    font-size: 1.3rem;
-  }
-
-  .form-group input {
-    font-size: 0.9rem;
-    padding: 10px 12px;
+  input {
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
   }
 
   button {
-    font-size: 0.9rem;
-    padding: 10px;
+    padding: 12px;
+    font-size: 18px;
+    background-color: #007BFF;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: .3s;
+
+    &:hover {
+      background-color: #0066d1;
+    }
   }
 
-  .divider p {
-    font-size: 0.8rem;
-  }
+  .forgot {
+    font-size: 14px;
+    text-align: right;
+    cursor: pointer;
+    margin-bottom: 10px;
 
-  .forgot-password {
-    font-size: 0.8rem;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }

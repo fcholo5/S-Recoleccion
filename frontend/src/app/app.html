@@ -1,4 +1,14 @@
+<div class="layout">
+  <!-- Sidebar -->
+  <app-sidebar class="sidebar"></app-sidebar>
 
-<div [class.auth-container]="isAuthPage">
-  <router-outlet></router-outlet>
+  <div class="main">
+    <!-- Navbar superior -->
+    <app-navbar class="navbar"></app-navbar>
+
+    <!-- Contenido dinámico -->
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
 </div>

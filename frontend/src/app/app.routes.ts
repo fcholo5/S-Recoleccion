@@ -11,7 +11,7 @@ export const appRoutes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () =>
-      import('./business/dashboard/dashboard').then(m => m.Dashboard),
+      import('./business/dashboard/dashboard').then(m => m.DashboardComponent),
     canActivate: [AuthGuard] // RUTA PROTEGIDA
   },
   {
