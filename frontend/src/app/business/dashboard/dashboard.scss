@@ -1,46 +1,38 @@
-h1 {
-  margin-bottom: 1.5rem;
-  font-size: 1.7rem;
-  color: #dce3ec;
-}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
 
-.cards {
-  display: flex;
-  gap: 1.2rem;
-  margin-bottom: 1.2rem;
-}
+  .stat-card {
+    background: white;
+    padding: 18px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 
-.card {
-  background: #0b1321;
-  padding: 1.4rem;
-  border-radius: 12px;
-  flex: 1;
+    .value {
+      font-size: 24px;
+      font-weight: bold;
+    }
 
-  p {
-    color: #7b8491;
-    margin-bottom: 0.5rem;
+    .change.up {
+      color: #1f8a45;
+    }
+
+    .red {
+      color: #d9534f;
+    }
   }
 
-  h2 {
-    margin: 0;
-    font-size: 1.8rem;
-    color: #dce3ec;
-    line-height: 1.3rem;
-  }
+  .panel {
+    grid-column: span 2;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 
-  &.large {
-    flex: 1;
-  }
-
-  &.map {
-    height: 350px;
-    display: flex;
-    flex-direction: column;
-
-    #map {
-      flex: 1;
-      margin-top: 1rem;
-      border-radius: 12px;
+    img {
+      width: 100%;
+      border-radius: 8px;
     }
   }
 }

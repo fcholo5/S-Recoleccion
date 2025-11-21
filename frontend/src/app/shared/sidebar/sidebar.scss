@@ -1,50 +1,70 @@
-.logo {
-  display: flex;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  gap: 0.6rem;
+$verde-oscuro: #58df49; // Encabezado (más oscuro)
+$verde-claro: #e1ede1;  // Cuerpo (como la imagen)
+$verde-hover: #11dc28; 
+$text-dark: #070101;
 
-  img {
-    width: 28px;
-  }
-
-  span {
-    color: #dce3ec;
-    font-size: 1.3rem;
-    font-weight: 600;
-  }
-}
-
-.menu {
+.sidebar {
+  width: 240px;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  margin-top: 1rem;
+  font-family: "Inter", sans-serif;
 
-  a {
-    padding: 0.9rem 1.5rem;
-    margin: 0.2rem 0.8rem;
-    border-radius: 10px;
+  /* ENCABEZADO */
+  .sidebar-header {
+    background: $verde-oscuro;
+    padding: 25px 10px;
     display: flex;
-    gap: 0.8rem;
+    flex-direction: column;
     align-items: center;
-    color: #dce3ec;
-    text-decoration: none;
-    transition: background 0.2s;
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.06);
+    img {
+      width: 55px;
+      margin-bottom: 5px;
     }
 
-    &.active {
-      background: #033f34;
-      color: #21c087;
+    .brand {
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      letter-spacing: 0.5px;
     }
   }
-}
 
-.footer {
-  margin-top: auto;
-  padding: 2rem 1.5rem;
-  font-size: 0.85rem;
-  color: #7b8491;
+  /* CUERPO */
+  .sidebar-body {
+    background: $verde-claro;
+    flex: 1;
+    padding: 20px 15px;
+
+    .menu {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      li {
+        padding: 10px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        color: $text-dark;
+        font-size: 15px;
+        background: transparent;
+        transition: 0.15s;
+
+        &:hover {
+          background: $verde-hover;
+          color: white;
+        }
+
+        &.active {
+          background: white;
+          color: $verde-oscuro;
+          font-weight: 600;
+        }
+      }
+    }
+  }
 }

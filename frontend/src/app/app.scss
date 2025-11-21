@@ -1,30 +1,8 @@
-.layout {
+/* src/app/app.scss */
+.auth-container {
   display: flex;
-  width: 100%;
-  height: 100vh;
-  background: #0f172a;
-  color: #dce3ec;
-}
-
-.sidebar {
-  width: 260px;
-  background: #0b1321;
-  padding: 1rem 0;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.main {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.navbar {
-  height: 70px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.content {
-  padding: 1.5rem;
-  overflow-y: auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f0f4f8;
 }

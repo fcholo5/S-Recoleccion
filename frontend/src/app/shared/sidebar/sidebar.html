@@ -1,31 +1,33 @@
-<div class="logo">
-  <img src="assets/img/truck-icon.svg" alt="logo">
-  <span>BuenaAseo</span>
-</div>
+<div class="sidebar">
 
-<nav class="menu">
-  <a routerLink="/dashboard" routerLinkActive="active">
-    <i class="icon">🏠</i> Dashboard
-  </a>
+  <!-- Encabezado -->
+  <div class="sidebar-header">
+    <img src="assets/img/leaves-3487571_1280.jpg" alt="LOGI-ROUTE">
+    <span class="brand">LOGI-ROUTE</span>
+  </div>
 
-  <a routerLink="/rutas" routerLinkActive="active">
-    <i class="icon">♻️</i> Rutas
-  </a>
+  <!-- Cuerpo del sidebar -->
+  <div class="sidebar-body">
+    <ul class="menu">
+      <li routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        Dashboard (Inicio)
+      </li>
+      <li routerLink="/rutas" routerLinkActive="active">
+        Rutas y Geocercas
+      </li>
+      <li routerLink="/vehiculos" routerLinkActive="active">
+        Control Vehicular
+      </li>
+      <li routerLink="/historial" routerLinkActive="active">
+        Historial y Vehículos
+      </li>
+      <li routerLink="/usuarios" routerLinkActive="active">
+        Usuarios y Roles
+      </li>
+      <li routerLink="/configuracion" routerLinkActive="active">
+        Configuración
+      </li>
+    </ul>
+  </div>
 
-  <a routerLink="/vehiculos" routerLinkActive="active">
-    <i class="icon">🚚</i> Vehículos
-  </a>
-
-  <a routerLink="/notificaciones" routerLinkActive="active">
-    <i class="icon">🔔</i> Notificaciones
-  </a>
-
-  <a routerLink="/usuarios" routerLinkActive="active">
-    <i class="icon">👤</i> Usuarios
-  </a>
-</nav>
-
-<div class="footer">
-  Conecta y notifica<br>
-  a tus vecinos
 </div>

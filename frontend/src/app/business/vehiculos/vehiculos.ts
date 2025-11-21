@@ -1,47 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { Vehiculos as VehiculosService } from '../../services/vehiculos'; // ✅ renombramos aquí para evitar conflicto de nombres
-import { CommonModule } from '@angular/common';
+// src/app/services/vehiculos.service.ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Vehiculo } from '../../models/vehiculo.model';
 
-@Component({
-  selector: 'app-vehiculos',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './vehiculos.html',
-  styleUrls: ['./vehiculos.scss']
-})
-export class Vehiculos implements OnInit {
-eliminarVehiculo(arg0: any) {
-throw new Error('Method not implemented.');
-}
-editarVehiculo(_t23: any) {
-throw new Error('Method not implemented.');
-}
-  vehiculos: any[] = [];
-  loading = false;
+@Injectable({ providedIn: 'root' })
+export class VehiculosService {
+  private url = `${environment.apiUrl}/api/vehiculos`;
 
-  constructor(private svc: VehiculosService) {}
+  constructor(private http: HttpClient) {}
 
-  ngOnInit(): void {
-    this.cargarVehiculos();
+  listar(): Observable<Vehiculo[]> {
+    return this.http.get<Vehiculo[]>(this.url);
   }
 
-  /**
-   * 🔹 Carga la lista de vehículos del perfil actual
-   */
-  cargarVehiculos(): void {
-  this.loading = true;
-
-  this.svc.list('', 1).subscribe({
-    next: (res: any) => {
-      this.vehiculos = res.data ?? res;
-      this.loading = false;
-      console.log('Vehículos cargados:', this.vehiculos);
-    },
-    error: (err: any) => {
-      this.loading = false;
-      console.error('Error al obtener los vehículos', err);
-    }
-  });
-}
-
+  crear(vehiculo: Omit<Vehiculo, 'id'>): Observable<Vehiculo> {
+    return this.http.post<Vehiculo>(this.url, vehiculo);
+  }
 }

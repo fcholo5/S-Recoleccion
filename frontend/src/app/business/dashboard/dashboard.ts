@@ -1,11 +1,13 @@
 import { Component, AfterViewInit } from '@angular/core';
 import * as L from 'leaflet';
+import { MapaPage } from '../mapa/mapa';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss'
+  styleUrl: './dashboard.scss',
+  imports: [ MapaPage]
 })
 export class DashboardComponent implements AfterViewInit {
 
