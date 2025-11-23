@@ -10,6 +10,7 @@ import * as L from 'leaflet';
 export class DashboardComponent implements AfterViewInit {
 
   private map!: L.Map;
+  private token: string | null = null;
 
   ngAfterViewInit(): void {
     this.initializeMap();
@@ -24,7 +25,7 @@ export class DashboardComponent implements AfterViewInit {
     // Capa base (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap'
+      attribution: '© OpenStreetMap - Fabian Panameño'
     }).addTo(this.map);
 
     // Marcador inicial

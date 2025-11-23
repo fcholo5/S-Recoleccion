@@ -1,5 +1,5 @@
+import {inject, Injectable} from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment.development';
@@ -10,7 +10,8 @@ import { environment } from '../../environments/environment.development';
 export class Auth {
   private tokenKey = 'authToken'; // Solo necesitamos la clave para el token de acceso
 
-  constructor(private httpClient: HttpClient, private router: Router) { }
+  private httpClient = inject(HttpClient)
+  private router = inject(Router)
 
   /**
    * Intenta autenticar al usuario con las credenciales proporcionadas.
@@ -19,18 +20,15 @@ export class Auth {
    * @param password La contraseña del usuario.
    * @returns Un Observable que emite la respuesta del servidor.
    */
-  login(email: string, password: string): Observable<any> {
-    const route = 'auth/logear'; // Asegúrate de que esta ruta sea correcta para tu backend
-    return this.httpClient.post<any>(environment.serverUrl + route, { email, password }).pipe(
+  login(email: string, password: string): Observable<ApiResponse<string>> {
+    const route = 'login';
+    return this.httpClient.post<ApiResponse<string>>(environment.serverUrl + route, { email, password }).pipe(
       tap(response => {
-        // En tu consola verás la respuesta completa del backend
-        console.log('DEBUG: Respuesta completa del login del backend:', response);
-        if (response.token) {
-          // Si el backend envía un 'token', lo almacenamos.
-          // Como ya confirmamos que no envía 'refreshToken', no se espera aquí.
-          this.setToken(response.token);
+        if (response.success == 1) { // Respuesta exitosa
+          // Guarda el token
+          this.setToken(response.data);
         } else {
-          console.warn('ADVERTENCIA: El backend NO envió una propiedad "token" en la respuesta del login.');
+          console.warn(response.message);
         }
       }),
       // Manejo de errores para la petición de login

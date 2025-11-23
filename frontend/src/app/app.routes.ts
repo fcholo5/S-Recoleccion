@@ -6,19 +6,46 @@ export const appRoutes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./business/authentication/login/login').then(m => m.Login)
+      import('./auth/login/login').then(m => m.Login)
   },
   {
-    path: 'dashboard',
+    path: 'app',
     loadComponent: () =>
-      import('./business/dashboard/dashboard').then(m => m.DashboardComponent),
-    canActivate: [AuthGuard] // RUTA PROTEGIDA
-  },
-  {
-    path: 'usuarios',
-    loadComponent: () =>
-      import('./business/usuarios/usuarios').then(m => m.Usuarios),
-    canActivate: [AuthGuard] // RUTA PROTEGIDA
+      import('./business/business').then(m => m.Business),
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./business/dashboard/dashboard').then(m => m.DashboardComponent),
+      },
+      {
+        path: 'rutas',
+        loadComponent: () =>
+          import('./business/rutas/rutas').then(m => m.RutasComponent),
+      },
+      {
+        path: 'vehiculos',
+        loadComponent: () =>
+          import('./business/vehiculos/vehiculos').then(m => m.Vehiculos),
+      },
+      {
+        path: 'notificaciones',
+        loadComponent: () =>
+          import('./business/notificaciones/notificaciones').then(m => m.Notificaciones),
+      },
+      {
+        path: 'usuarios',
+        loadComponent: () =>
+          import('./business/usuarios/usuarios').then(m => m.Usuarios),
+      },
+      { path: '**', redirectTo: 'dashboard' }
+    ]
   },
   { path: '**', redirectTo: 'login' }
 ];

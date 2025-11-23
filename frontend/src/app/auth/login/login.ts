@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import {Auth} from '../../services/auth';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,8 @@ export class Login {
   email: string = '';
   password: string = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
+  private auth = inject(Auth)
 
   onSubmit() {
     console.log('Email:', this.email);
@@ -27,9 +29,17 @@ export class Login {
       return;
     }
 
-    // Aquí iría tu petición al backend
-
-    // Redirección al dashboard temporal
-    this.router.navigate(['/dashboard']);
+    this.auth.login(this.email, this.password).subscribe({
+      next: (response) => {
+        console.log('Login exitoso, respuesta:', response);
+        if (response.success == 1)
+          this.router.navigate(['/app/dashboard']).then(r => r.valueOf());
+        else
+          alert(response.message);
+      },
+      error: (error) => {
+        console.error('Error en el login:', error.message);
+      }
+    });
   }
 }

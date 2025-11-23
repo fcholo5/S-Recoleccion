@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  serverUrl: 'http://192.168.0.13:8000/api/',
+  serverUrl: 'http://127.0.0.1/api/',
   apiUrl: 'http://apirecoleccion.gonzaloandreslucio.com/api'
 };
