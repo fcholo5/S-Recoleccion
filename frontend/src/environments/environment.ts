@@ -1,5 +1,7 @@
 export const environment = {
   production: false,
-  serverUrl: 'http://192.168.0.13:8000/api/', // 🔹 tu servidor local (opcional)
-  apiUrl: 'https://apirecoleccion.gonzaloandreslucio.com/api' // 🔹 API del profe
+  serverUrl: 'http://localhost:8000/api/', // Cambiado para usar local
+  apiUrl: 'http://apirecoleccion.gonzaloandreslucio.com/api'
+  
+
 };

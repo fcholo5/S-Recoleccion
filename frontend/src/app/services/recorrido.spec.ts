@@ -1,18 +1,22 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RecorridoService } from './recorrido';
+// src/app/services/recorrido.ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { Recorrido } from '../models/recorrido.model';
+import { Posicion } from '../models/posicion.model';
 
-describe('RecorridoService', () => {
-  let service: RecorridoService;
+@Injectable({ providedIn: 'root' })
+export class RecorridoService {
+  private baseUrl = `${environment.apiUrl}/api/recorridos`;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule], // Necesario para los servicios que usan HttpClient
-    });
-    service = TestBed.inject(RecorridoService);
-  });
+  constructor(private http: HttpClient) {}
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+  iniciarRecorrido(recorrido: Omit<Recorrido, 'id' | 'iniciado_en'>): Observable<Recorrido> {
+    return this.http.post<Recorrido>(`${this.baseUrl}/iniciar`, recorrido);
+  }
+
+  registrarPosicion(recorridoId: string, posicion: Posicion): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${recorridoId}/posiciones`, posicion);
+  }
+}

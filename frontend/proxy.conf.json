@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "http://apirecoleccion.gonzaloandreslucio.com",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

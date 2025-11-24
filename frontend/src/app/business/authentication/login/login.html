@@ -2,15 +2,23 @@
 
   <div class="login-box">
 
+    <!-- COLUMNA IZQUIERDA -->
     <div class="left">
-      <h1>Bienvenido a JP Ambiental</h1>
+      <h1>Bienvenido a <span>JP Ambiental</span></h1>
       <p>Juntos mantenemos nuestras calles limpias y nuestro planeta vivo.</p>
     </div>
 
+    <!-- COLUMNA DERECHA (FORMULARIO) -->
     <div class="right">
+
       <h2>Iniciar sesión</h2>
 
-      <form (submit)="onSubmit()">
+      <!-- ERROR DEL BACKEND -->
+      <div *ngIf="errorMessage" class="error-box">
+        {{ errorMessage }}
+      </div>
+
+      <form (ngSubmit)="onSubmit()">
 
         <input
           type="email"
@@ -30,11 +38,28 @@
 
         <a class="forgot">¿Olvidaste tu contraseña?</a>
 
-        <button type="submit">Iniciar sesión</button>
+        <button type="submit" [disabled]="loading">
+          {{ loading ? 'Validando...' : 'Iniciar sesión' }}
+        </button>
+
       </form>
+      
+      <!-- SECCIÓN SOCIAL LOGIN -->
+      <div class="social-box">
+        <p>O continúa con</p>
+
+        <div class="social-buttons">
+          <button class="">
+            <img src="assets/google.png" alt="google" />
+        
+          </button>
+
+          <button class="">
+             <img src="assets/facebook.png" alt="Facebook" />
+          </button>
+        </div>
+      </div>
 
     </div>
-
   </div>
-
 </div>

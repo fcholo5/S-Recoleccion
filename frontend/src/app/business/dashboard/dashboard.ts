@@ -26,7 +26,7 @@ export class DashboardComponent implements AfterViewInit {
     // Capa base (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap'
+      attribution: '© OpenStreetMap - Fabian panameño' 
     }).addTo(this.map);
 
     // Marcador inicial

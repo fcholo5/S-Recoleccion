@@ -3,8 +3,9 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { LayoutComponent } from './shared/layout/layout';
 
 export const appRoutes: Routes = [
-       
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
+
+  // REDIRECCIÓN INICIAL
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
 
   // LOGIN SIN LAYOUT
   {
@@ -14,13 +15,17 @@ export const appRoutes: Routes = [
         .then(m => m.Login)
   },
 
-  // TODA LA APP CON LAYOUT
+  // TODAS LAS RUTAS PROTEGIDAS BAJO EL LAYOUT
   {
     path: '',
     component: LayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
 
       {
         path: 'dashboard',
@@ -35,16 +40,19 @@ export const appRoutes: Routes = [
           import('./business/usuarios/usuarios')
             .then(m => m.Usuarios)
       },
-{
-  path: 'rutas',
-  loadComponent: () =>
-    import('./business/rutas/rutas').then(m => m.RutasPage)
-}
 
+      {
+        path: 'rutas',
+        loadComponent: () =>
+          import('./business/rutas/rutas')
+            .then(m => m.RutasComponent)
+      },
+      {path: '**', redirectTo:'dashboard'},
 
-      // aquí puedes agregar más rutas
+      // Aquí puedes agregar más páginas internas...
     ]
   },
 
+  // CUALQUIER RUTA NO ENCONTRADA → LOGIN
   { path: '**', redirectTo: 'login' }
 ];

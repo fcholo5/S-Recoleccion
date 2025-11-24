@@ -1,66 +1,29 @@
-// src/app/business/mapa/mapa.component.ts
-
+import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
-import { TrackingService } from '../../services/tracking.service';
 
 @Component({
   selector: 'app-mapa',
   templateUrl: './mapa.html',
-  styleUrls: ['./mapa.scss']
+  styleUrls: ['./mapa.scss'],
+  imports: [CommonModule]
 })
 export class MapaPage implements AfterViewInit, OnDestroy {
 
   private map!: L.Map;
   private userMarker!: L.Marker;
-  private vehicleMarker!: L.CircleMarker;
-  private polylineLayer!: L.Polyline;
   private perfil_id: string = 'dc5fc78f-cd98-4296-94ec-18400859c8e7';
-  private apiBase: string = 'https://tu-api.com';
+  private apiBase: string = 'http:/api';
 
-  // 🗺️ RUTA REAL EN CALLES DE BUENAVENTURA — EXTRAÍDA DE OSM (calles reales)
-  private simulatedRoute: [number, number][] = [
-    [3.8700, -77.0400], // Puerto de Buenaventura
-    [3.8703, -77.0403],
-    [3.8706, -77.0406], // Calle 6
-    [3.8709, -77.0409],
-    [3.8712, -77.0412],
-    [3.8715, -77.0415], // Entrada al centro
-    [3.8718, -77.0418],
-    [3.8721, -77.0421], // Cruce Calle 7
-    [3.8724, -77.0424],
-    [3.8727, -77.0427],
-    [3.8730, -77.0430], // Zona Pesquera
-    [3.8733, -77.0433],
-    [3.8736, -77.0436],
-    [3.8739, -77.0439], // Calle 5
-    [3.8742, -77.0442],
-    [3.8745, -77.0445],
-    [3.8748, -77.0448],
-    [3.8751, -77.0451], // Centro (Calle 6)
-    [3.8754, -77.0454],
-    [3.8757, -77.0457],
-    [3.8760, -77.0460], // Barrio Cristal
-    [3.8763, -77.0463],
-    [3.8766, -77.0466],
-    [3.8769, -77.0469], // Carrera 12
-    [3.8772, -77.0472],
-    [3.8775, -77.0475],
-    [3.8778, -77.0478],
-    [3.8781, -77.0481], // Santa Rosa
-    [3.8784, -77.0484],
-    [3.8787, -77.0487],
-    [3.8790, -77.0490], // Mayolo
-    [3.8793, -77.0493],
-    [3.8796, -77.0496],
-    [3.8799, -77.0499]  // Fin en Mayolo
-  ];
+  public drawingRoute = false;
+  private currentRoutePoints: L.LatLng[] = [];
+  private currentRouteLayer: L.Polyline | null = null;
 
-  private currentStep = 0;
-  private simulationInterval: any;
-  private isSimulating = false;
-
-  constructor(private trackingService: TrackingService) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
     this.fixLeafletIcons();
   }
 
@@ -69,71 +32,32 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     this.agregarBotonCentrar();
     this.obtenerUbicacionActual();
     this.cargarRutasDesdeAPI();
-    this.iniciarSimulacionVehiculo();
+
+    // ✅ Activar modo dibujo si viene desde rutas
+    this.route.queryParams.subscribe(params => {
+      if (params['dibujar'] === '1' && !this.drawingRoute) {
+        setTimeout(() => {
+          this.toggleDrawingMode();
+        }, 600);
+      }
+    });
   }
 
-  iniciarSimulacionVehiculo() {
-    if (this.isSimulating) return;
-
-    this.isSimulating = true;
-    this.currentStep = 0;
-    this.trackingService.clearRoute();
-
-    const [lat, lng] = this.simulatedRoute[0];
-    this.vehicleMarker = L.circleMarker([lat, lng], {
-      radius: 9,
-      color: '#e60000',
-      fillColor: '#ff3333',
-      fillOpacity: 1,
-      weight: 2
-    }).addTo(this.map)
-      .bindPopup('🚛 Vehículo en movimiento')
-      .openPopup();
-
-    this.polylineLayer = L.polyline([], {
-      color: '#00b300',
-      weight: 5,
-      opacity: 0.9
-    }).addTo(this.map);
-
-    this.simulationInterval = setInterval(() => {
-      if (this.currentStep < this.simulatedRoute.length) {
-        const [lat, lng] = this.simulatedRoute[this.currentStep];
-        this.vehicleMarker.setLatLng([lat, lng]);
-
-        // 👇 Actualizamos el popup con el barrio actual (aproximado)
-        const barrios = ['Puerto', 'Calle 6', '', '', 'Centro', '', '', 'Zona Pesquera', '', '', 'Calle 5', '', '', 'Centro', '', '', 'Barrio Cristal', '', '', 'Carrera 12', '', '', 'Santa Rosa', '', '', 'Mayolo', '', '', 'Mayolo', '', '', 'Mayolo'];
-        const barrio = barrios[this.currentStep] || 'En ruta';
-        this.vehicleMarker.setPopupContent(`🚛 ${barrio}<br>Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`);
-
-        this.map.panTo([lat, lng], { animate: true, duration: 0.5 });
-
-        this.trackingService.addPoint(lat, lng);
-
-        const currentPath = this.simulatedRoute.slice(0, this.currentStep + 1);
-        this.polylineLayer.setLatLngs(currentPath);
-
-        this.currentStep++;
-      } else {
-        clearInterval(this.simulationInterval);
-        this.isSimulating = false;
-        this.vehicleMarker.setPopupContent('✅ Recorrido finalizado').openPopup();
-        this.trackingService.saveRecorrido('Recorrido Automático - ' + new Date().toLocaleDateString('es-CO'));
-      }
-    }, 1800); // Cada 1.8 segundos
+  ngOnDestroy(): void {
+    if (this.map) {
+      this.map.remove();
+    }
   }
 
   inicializarMapa() {
     this.map = L.map('map', {
-      center: [3.875, -77.045],
-      zoom: 14,
-      minZoom: 13,
-      maxZoom: 18
+      center: [3.895, -77.05],
+      zoom: 13
     });
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      attribution: '© OpenStreetMap - Fabian Panameño'
     }).addTo(this.map);
   }
 
@@ -142,7 +66,10 @@ export class MapaPage implements AfterViewInit, OnDestroy {
       options: { position: 'topleft' },
       onAdd: (map: L.Map) => {
         const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-        div.innerHTML = '<button style="background:#fff;border:none;padding:8px 10px;cursor:pointer;border-radius:4px;font-size:14px;">📍 Mi ubicación</button>';
+        div.style.background = '#fff';
+        div.style.padding = '5px';
+        div.style.cursor = 'pointer';
+        div.innerHTML = '📍 Mi ubicación';
         div.onclick = () => {
           if (this.userMarker) {
             this.map.setView(this.userMarker.getLatLng(), 16);
@@ -151,12 +78,16 @@ export class MapaPage implements AfterViewInit, OnDestroy {
         return div;
       }
     });
+
     this.map.addControl(new control());
   }
 
   obtenerUbicacionActual() {
-    if (!navigator.geolocation) return alert("Geolocalización no soportada.");
-    
+    if (!navigator.geolocation) {
+      alert("La geolocalización no está soportada.");
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const lat = pos.coords.latitude;
@@ -170,30 +101,35 @@ export class MapaPage implements AfterViewInit, OnDestroy {
         }
 
         this.map.setView(posicion, 16);
+
         const barrio = await this.obtenerBarrio(lat, lon);
-        this.userMarker.bindPopup(`📍 Tú estás aquí<br>🗺 ${barrio}`).openPopup();
+        this.userMarker.bindPopup(`📍 Estás aquí<br>🗺 Barrio: ${barrio}`).openPopup();
       },
-      (err) => console.error("Error GPS:", err),
-      { enableHighAccuracy: true, timeout: 10000 }
+      (err) => {
+        console.error("Error al obtener ubicación:", err);
+        alert("No se pudo obtener la ubicación GPS.");
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
   }
 
   async obtenerBarrio(lat: number, lon: number): Promise<string> {
     try {
-      const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`;
-      const res = await fetch(url, { headers: { 'User-Agent': 'TuApp/1.0' } });
-      const data = await res.json();
-      return data.address?.neighbourhood || data.address?.suburb || data.address?.city_district || 'Buenaventura';
-    } catch {
-      return 'Buenaventura';
+      const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+      const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      const data = await response.json();
+      return data.address?.neighbourhood || data.address?.suburb || data.address?.city_district || "Desconocido";
+    } catch (error) {
+      console.error("Error al obtener barrio:", error);
+      return "Desconocido";
     }
   }
 
   async cargarRutasDesdeAPI() {
     try {
-      const res = await fetch(`${this.apiBase}/api/rutas?perfil_id=${this.perfil_id}`);
+      const res = await fetch(`${this.apiBase}/rutas?perfil_id=${this.perfil_id}`);
       const data = await res.json();
-      if (!Array.isArray(data.data)) return;
+      if (!data.data) return;
 
       data.data.forEach((ruta: any) => {
         if (!ruta.shape) return;
@@ -201,16 +137,20 @@ export class MapaPage implements AfterViewInit, OnDestroy {
         try {
           geojson = typeof ruta.shape === 'string' ? JSON.parse(ruta.shape) : ruta.shape;
         } catch {
+          console.warn("GeoJSON inválido en ruta:", ruta.nombre_ruta);
           return;
         }
 
+        const color = ruta.color_hex || '#3388ff';
         L.geoJSON(geojson, {
-          style: { color: ruta.color_hex || '#3388ff', weight: 4, opacity: 0.7 },
-          onEachFeature: (_, layer) => layer.bindPopup(`🛣 ${ruta.nombre_ruta}`)
+          style: { color, weight: 4, opacity: 0.7 },
+          onEachFeature: (feature, layer) => {
+            layer.bindPopup(`🛣 Ruta: ${ruta.nombre_ruta}`);
+          }
         }).addTo(this.map);
       });
     } catch (error) {
-      console.error("Error cargando rutas:", error);
+      console.error("Error al cargar rutas desde la API:", error);
     }
   }
 
@@ -218,11 +158,114 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     const iconRetinaUrl = 'assets/img/marker-icon-2x.png';
     const iconUrl = 'assets/img/marker-icon.png';
     const shadowUrl = 'assets/img/marker-shadow.png';
-    const defaultIcon = L.icon({ iconRetinaUrl, iconUrl, shadowUrl, iconSize: [25, 41], iconAnchor: [12, 41] });
+
+    const defaultIcon = L.icon({
+      iconRetinaUrl,
+      iconUrl,
+      shadowUrl,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
+    });
+
     L.Marker.prototype.options.icon = defaultIcon;
   }
 
-  ngOnDestroy() {
-    if (this.simulationInterval) clearInterval(this.simulationInterval);
+  // 🖊 DIBUJO DE RUTA
+  toggleDrawingMode() {
+    if (this.drawingRoute) {
+      this.finalizarRuta();
+    } else {
+      this.iniciarDibujoRuta();
+    }
+  }
+
+  iniciarDibujoRuta() {
+    this.drawingRoute = true;
+    this.currentRoutePoints = [];
+    this.map.on('click', this.onMapClick, this);
+    alert('Haga clic en el mapa para agregar puntos. Luego haga clic en "Finalizar Ruta" para guardar.');
+  }
+
+  onMapClick(e: L.LeafletMouseEvent) {
+    if (!this.drawingRoute) return;
+
+    const latlng = e.latlng;
+    this.currentRoutePoints.push(latlng);
+
+    if (this.currentRouteLayer) {
+      this.map.removeLayer(this.currentRouteLayer);
+    }
+
+    this.currentRouteLayer = L.polyline(this.currentRoutePoints, {
+      color: 'red',
+      weight: 4,
+      dashArray: '5,5'
+    }).addTo(this.map);
+  }
+
+  async finalizarRuta() {
+    if (this.currentRoutePoints.length < 2) {
+      alert('La ruta debe tener al menos 2 puntos.');
+      this.cancelarDibujo();
+      return;
+    }
+
+    const coordinates = this.currentRoutePoints.map(p => [p.lng, p.lat] as [number, number]);
+
+    const geojsonLine = {
+      type: 'LineString' as const,
+      coordinates: coordinates
+    };
+
+    const nombre = prompt('Nombre de la ruta:');
+    if (!nombre) {
+      this.cancelarDibujo();
+      return;
+    }
+
+    const payload = {
+      nombre_ruta: nombre,
+      perfil_id: this.perfil_id,
+      shape: geojsonLine
+    };
+
+    try {
+      const response = await fetch(`${this.apiBase}/rutas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        alert('✅ Ruta creada exitosamente');
+        L.geoJSON(geojsonLine, {
+          style: { color: '#3388ff', weight: 4 },
+          onEachFeature: (feature, layer) => {
+            layer.bindPopup(`🛣 Ruta: ${nombre}`);
+          }
+        }).addTo(this.map);
+
+        this.cancelarDibujo();
+        // ✅ Redirigir de vuelta a rutas
+        this.router.navigate(['/rutas']);
+      } else {
+        const error = await response.json();
+        console.error('Error API:', error);
+        alert('❌ Error al crear la ruta');
+      }
+    } catch (err) {
+      console.error('Error al enviar ruta:', err);
+      alert('Error de red al crear la ruta');
+    }
+  }
+
+  cancelarDibujo() {
+    this.drawingRoute = false;
+    this.map.off('click', this.onMapClick, this);
+    if (this.currentRouteLayer) {
+      this.map.removeLayer(this.currentRouteLayer);
+      this.currentRouteLayer = null;
+    }
+    this.currentRoutePoints = [];
   }
 }

@@ -1,7 +1,12 @@
+export interface Coordenada {
+  type: 'LineString';
+  coordinates: [number, number][]; // [lon, lat]
+}
+
 export interface Ruta {
-  id: string;
+  id?: string;
   nombre_ruta: string;
-  shape?: GeoJSON.LineString;
-  calles_ids?: string[];
   perfil_id: string;
+  shape?: Coordenada;
+  calles_ids?: string[];
 }

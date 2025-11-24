@@ -1,139 +1,107 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-// Interfaz del usuario
+export interface Role {
+  id: number;
+  name: string;
+}
+
 export interface User {
   id?: number;
   name: string;
   email: string;
-  password?: string;
-  rol_id?: number; // 👈 necesario para crear o editar
-  status?: number;
-  activo?: boolean;
-  created_at?: string;
-  updated_at?: string;
-  rol?: {
-    id: number;
-    nombre: string;
-  };
+  password?: string; // Solo para crear usuario
+  role_id?: number;
+  role?: Role;
 }
 
-
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = environment.serverUrl + 'usuarios';
+
+  private apiUrl = environment.serverUrl + 'usuarios/';
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Manejo de errores de HTTP
-   */
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'Error inesperado al comunicarse con el servidor.';
-
-    if (error.status === 0) {
-      errorMessage = 'No se pudo conectar con el servidor.';
-    } else if (typeof ProgressEvent !== 'undefined' && error.error instanceof ProgressEvent) {
-      console.error('DEBUG: JSON inválido o vacío:', error.error);
-      errorMessage = `Error de análisis: Respuesta vacía o inválida.`;
-    } else if (error.error && typeof error.error === 'object') {
-      if ('message' in error.error && typeof error.error.message === 'string') {
-        errorMessage = error.error.message;
-      } else if ('errors' in error.error && typeof error.error.errors === 'object') {
-        const validationErrors = Object.values(error.error.errors).flat().join(' ');
-        errorMessage = `Errores de validación: ${validationErrors}`;
-      } else {
-        errorMessage = `Error del servidor: ${JSON.stringify(error.error)}`;
-      }
-    } else if (typeof error.error === 'string') {
-      errorMessage = error.error;
-    } else {
-      errorMessage = error.message || 'Error desconocido.';
-    }
-
-    console.error('DEBUG: Error procesado:', error);
-    return throwError(() => new Error(errorMessage));
-  }
-
-  /**
-   * Obtener todos los usuarios
-   */
-  getUsers(): Observable<User[]> {
-    return this.http.get<{ success: boolean; data: User[] }>(this.apiUrl).pipe(
-      map(res => res.data),
-      catchError(this.handleError)
-    );
-  }
-
-  /**
-   * Obtener un usuario por ID
-   */
-  getUser(id: number): Observable<User> {
-    return this.http.get<{ success: boolean; data: User }>(`${this.apiUrl}/${id}`).pipe(
-      map(res => res.data),
-      catchError(this.handleError)
-    );
-  }
-
-  /**
-   * Crear un nuevo usuario
-   */
-  createUser(user: User): Observable<User> {
-    return this.http.post<{ success: boolean; data: User }>(this.apiUrl, user).pipe(
-      map(res => res.data),
-      catchError(this.handleError)
-    );
-  }
-
-  /**
-   * Actualizar un usuario existente
-   */
-  updateUser(user: User): Observable<User> {
-    if (user.id === undefined) {
-      return throwError(() => new Error('Se requiere el ID del usuario.'));
-    }
-
-    const updatePayload: Partial<User> = {
-      name: user.name,
-      email: user.email,
-      rol_id: user.rol_id,
-      status: user.status,
+  // =============================
+  // Cabeceras con token
+  // =============================
+  private getHeaders(): { headers: HttpHeaders } {
+    const token = localStorage.getItem('authToken'); // token guardado por Auth
+    return {
+      headers: new HttpHeaders({
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Accept': 'application/json'
+      })
     };
+  }
 
-    if (user.password) {
-      updatePayload.password = user.password;
-    }
-
-    return this.http.put<{ success: boolean; data: User }>(`${this.apiUrl}/${user.id}`, updatePayload).pipe(
-      map(res => res.data),
-      catchError(this.handleError)
+  // =============================
+  // LISTAR USUARIOS
+  // =============================
+  getUsuarios(): Observable<User[]> {
+    return this.http.get<{ success: number, data: User[] }>(this.apiUrl, this.getHeaders()).pipe(
+      map(resp => {
+        if (resp.success === 1) return resp.data;
+        throw new Error('Error al obtener usuarios');
+      }),
+      catchError(err => throwError(() => new Error(err.message || 'Error en el servidor')))
     );
   }
 
-  /**
-   * Cambiar estado del usuario (activo/inactivo)
-   * Tu backend usa un GET a /usuarios/cambiar-estado/{id}/{estado}
-   */
-  updateUserStatus(id: number, status: number): Observable<User> {
-    return this.http.get<{ success: boolean; data: User }>(
-      `${this.apiUrl}/cambiar-estado/${id}/${status}`
-    ).pipe(
-      map(res => res.data),
-      catchError(this.handleError)
+  // =============================
+  // OBTENER UN USUARIO POR ID
+  // =============================
+  getUsuario(id: number): Observable<User> {
+    return this.http.get<{ success: number, data: User }>(this.apiUrl + id, this.getHeaders()).pipe(
+      map(resp => {
+        if (resp.success === 1) return resp.data;
+        throw new Error('Usuario no encontrado');
+      }),
+      catchError(err => throwError(() => new Error(err.message || 'Error en el servidor')))
     );
   }
 
-  /**
-   * Eliminar un usuario
-   */
-  deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
-      catchError(this.handleError)
+  // =============================
+  // CREAR USUARIO
+  // =============================
+  crearUsuario(user: { name: string; email: string; password: string; role_id: number }): Observable<User> {
+    return this.http.post<{ success: number, data: User }>(this.apiUrl, user, this.getHeaders()).pipe(
+      map(resp => {
+        if (resp.success === 1) return resp.data;
+        throw new Error('Error al crear usuario');
+      }),
+      catchError(err => throwError(() => new Error(err.message || 'Error en el servidor')))
+    );
+  }
+
+  // =============================
+  // ACTUALIZAR USUARIO
+  // =============================
+  actualizarUsuario(id: number, user: { name: string; email: string; role_id: number }): Observable<User> {
+    return this.http.put<{ success: number, data: User }>(this.apiUrl + id, user, this.getHeaders()).pipe(
+      map(resp => {
+        if (resp.success === 1) return resp.data;
+        throw new Error('Error al actualizar usuario');
+      }),
+      catchError(err => throwError(() => new Error(err.message || 'Error en el servidor')))
+    );
+  }
+
+  // =============================
+  // ELIMINAR USUARIO
+  // =============================
+  eliminarUsuario(id: number): Observable<void> {
+    return this.http.delete<{ success: number }>(this.apiUrl + id, this.getHeaders()).pipe(
+      map(resp => {
+        if (resp.success === 1) return;
+        throw new Error('Error al eliminar usuario');
+      }),
+      catchError(err => throwError(() => new Error(err.message || 'Error en el servidor')))
     );
   }
 }
