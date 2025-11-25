@@ -32,28 +32,24 @@ jobs:
       - name: 🏗️ Compilar frontend Angular
         run: |
           cd frontend
-          ng build --configuration production --base-href ./ --verbose
+          ng build --configuration production --base-href /
           cd ..
 
-      # ----------------- DEBUG: Verificar carpeta dist -----------------
-      - name: 🧾 Listar carpeta de build
+      # ----------------- PREPARAR DEPLOY -----------------
+      - name: 🧩 Preparar archivos frontend
         run: |
-          ls -R frontend/dist/
+          rm -rf deploy-frontend
+          mkdir deploy-frontend
+          cp -r frontend/dist/frontend/browser/* deploy-frontend/
+          cp frontend/dist/frontend/3rdpartylicenses.txt deploy-frontend/ || true
+          cp frontend/dist/frontend/prerendered-routes.json deploy-frontend/ || true
 
-      # ----------------- SUBIR ARCHIVOS DIRECTAMENTE -----------------
-      - name: 📤 Subir frontend a servidor Apache2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT || '22' }}
-          source: "frontend/dist/frontend/browser/**"
-          target: "/var/www/fabian_site/"
-          overwrite: true
+      # ----------------- DEBUG -----------------
+      - name: 🧾 Ver contenido listo para deploy
+        run: ls -R deploy-frontend
 
-      # ----------------- AJUSTAR PERMISOS (SIN SUDO) -----------------
-      - name: ⚙️ Ajustar permisos en servidor
+      # ----------------- LIMPIAR SERVIDOR -----------------
+      - name: 🧹 Limpiar contenido anterior en el servidor
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -61,9 +57,28 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || '22' }}
           script: |
-            echo "✅ Archivos frontend desplegados correctamente"
-            # Ajustar permisos solo dentro de /var/www/fabian_site/
-            chmod -R 775 /var/www/fabian_site/
-            chown -R $USER:$USER /var/www/fabian_site/
-            # Recargar Apache (solo si tienes permisos)
-            systemctl reload apache2 || echo "⚠️ No se pudo recargar Apache, usuario sin permisos"
+            rm -rf /var/www/fabian_site/*
+            echo "✔ Carpeta limpiada en servidor"
+
+      # ----------------- SUBIR ARCHIVOS -----------------
+      - name: 📤 Subir frontend al servidor Apache2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || '22' }}
+          source: "deploy-frontend/*"
+          target: "/var/www/fabian_site/"
+          overwrite: true
+
+      # ----------------- SSH TASKS -----------------
+      - name: ⚙️ Ajustar permisos finales
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || '22' }}
+          script: |
+            echo "✔ Deploy completado"
