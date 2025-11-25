@@ -32,7 +32,7 @@ jobs:
       - name: 🏗️ Compilar frontend Angular
         run: |
           cd frontend
-          ng build --configuration production --base-href /deploy-frontend/
+          ng build --configuration production --base-href /
           cd ..
 
       # ----------------- PREPARAR DEPLOY -----------------
