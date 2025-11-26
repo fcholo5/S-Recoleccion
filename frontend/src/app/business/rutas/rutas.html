@@ -1,70 +1,190 @@
 <!-- src/app/business/rutas/rutas.html -->
 <div class="rutas-container">
+  <!-- Header -->
   <div class="header">
-    <h1>🛣️ Mis Rutas de Recolección</h1>
-    <button (click)="abrirModalDibujo()" class="btn-primary">
-      ✏️ Crear Nueva Ruta
-    </button>
+    <h1>Gestión de Rutas</h1>
+    <button (click)="abrirModalDibujo()" class="btn-create">Crear Nueva Ruta</button>
   </div>
 
-  <div class="content">
-    <!-- Mensaje de carga -->
-    <div *ngIf="loading" class="message">
-      <p>Cargando rutas...</p>
+  <!-- Filtros -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>Mostrar:</label>
+      <div class="search-box">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (input)="onSearch()" 
+          placeholder="🔍Buscar rutas..." 
+          class="search-input">
+        <span class="search-icon"></span>
+      </div>
+      <select class="filter-select" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
+        
+        <option value="4">Mostrar: 4</option>
+        <option value="25">Mostrar: 25</option>
+        <option value="50">Mostrar: 50</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabla de rutas -->
+  <div class="rutas-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre de Ruta</th>
+          <th>Distancia (km)</th>
+          <th>Puntos</th>
+          <th>Horario Base</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ruta of rutasPaginadas; trackBy: trackByRuta">
+          <td>
+            {{ ruta.nombre_ruta }}
+            <span class="badge-status">Activo</span>
+          </td>
+          <td>{{ calcularLongitud(ruta) }}</td>
+          <td><span class="badge-points">{{ contarPuntos(ruta) }} pts</span></td>
+          <td>
+            <span class="badge-hora">06:00 AM</span>
+          </td>
+          <td>
+            <button class="btn-action view">📍</button>
+            <button class="btn-action edit">✏️</button>
+            <button class="btn-action delete">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination">
+    <div class="pagination-info">
+      Mostrando {{ startIndex + 1 }} - {{ endIndex }} de {{ rutasFiltradas.length }} rutas
+    </div>
+    <div class="pagination-controls">
+      <button 
+        (click)="changePage(currentPage - 1)" 
+        [disabled]="currentPage === 1"
+        class="pagination-btn">
+        ←
+      </button>
+      <div class="pagination-pages">
+        <button 
+          *ngFor="let page of getPageNumbers()" 
+          (click)="changePage(page)" 
+          [class.active]="page === currentPage"
+          class="pagination-page-btn">
+          {{ page }}
+        </button>
+      </div>
+      <button 
+        (click)="changePage(currentPage + 1)" 
+        [disabled]="currentPage === totalPages"
+        class="pagination-btn">
+        →
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL DE CREACIÓN DE RUTA -->
+  <div class="modal-dibujo" *ngIf="showMapModal">
+    <div class="modal-header">
+      <h3>Crear Nueva Ruta</h3>
+      <button (click)="cancelarDibujo()" class="btn-close">×</button>
     </div>
 
-    <!-- Mensaje de error -->
-    <div *ngIf="error" class="message error">
-      <p>{{ error }}</p>
-      <button (click)="cargarRutas()" class="btn-secondary">Reintentar</button>
-    </div>
-
-    <!-- Lista de rutas -->
-    <div *ngIf="!loading && rutas.length === 0" class="message empty">
-      <p>Aún no tienes rutas creadas.</p>
-    </div>
-
-    <div class="rutas-list" *ngIf="!loading && rutas.length > 0">
-      <div class="ruta-card" *ngFor="let ruta of rutas">
-        <div class="ruta-info">
-          <h3>{{ ruta.nombre_ruta }}</h3>
-          <div class="ruta-meta">
-            <span class="badge">{{ calcularLongitud(ruta) }} km</span>
-            <span class="points">{{ ruta.shape ? (JSON.parse(ruta.shape).coordinates?.length || 0) : 0 }} puntos</span>
+    <div class="modal-body">
+      <!-- MAPA -->
+      <div class="map-panel">
+        <div id="embedded-map" class="map-container"></div>
+        
+        <!-- Barra de estado -->
+        <div class="status-bar" *ngIf="drawingRoute">
+          <div class="status-info">
+            <span>🟢 Dibujando: {{ nombreTemporal || 'Nueva Ruta' }} - Longitud: {{ calcularLongitudActual() }} km</span>
+          </div>
+          <div class="status-buttons">
+            <button (click)="cancelarDibujo()" class="btn-cancel">Cancelar</button>
+            <button 
+              (click)="finalizarRuta()" 
+              [disabled]="currentRoutePoints.length < 2"
+              class="btn-save" 
+              [class.btn-disabled]="currentRoutePoints.length < 2">
+              Guardar Ruta ✓
+            </button>
           </div>
         </div>
-        <div class="ruta-actions">
-          <button class="btn-icon" title="Ver en mapa">
-            <i>🗺️</i>
-          </button>
-          <button class="btn-icon" title="Editar">
-            <i>✏️</i>
-          </button>
-          <button class="btn-icon danger" title="Eliminar">
-            <i>🗑️</i>
-          </button>
+      </div>
+
+      <!-- PANEL DE CONFIGURACIÓN -->
+      <div class="config-panel">
+        <div class="config-header">
+          <h4>2. Configurar Datos</h4>
+          <div class="step-indicator">
+            <span class="step-active">1. Dibujar Trazo</span>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- MODAL DE DIBUJO -->
-  <div class="modal-backdrop" *ngIf="showMapModal" (click)="cancelarDibujo()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>✏️ Dibujando Ruta...</h3>
-        <button (click)="cancelarDibujo()" class="close-btn">×</button>
-      </div>
+        <div class="config-form">
+          <!-- Nombre de la ruta -->
+          <div class="form-group">
+            <label>Nombre de Ruta</label>
+            <input 
+              type="text" 
+              [(ngModel)]="nombreTemporal" 
+              placeholder="Ej: Ruta Centro - Boroboro"
+              class="form-input">
+          </div>
 
-      <div id="embedded-map" class="map-container"></div>
+          <!-- Hora Base -->
+          <div class="form-group">
+            <label>Hora Base</label>
+            <input type="time" class="form-time">
+          </div>
 
-      <div class="modal-footer">
-        <button (click)="finalizarRuta()" class="btn-success">
-          ✅ Finalizar y Guardar Ruta
-        </button>
-        <button (click)="cancelarDibujo()" class="btn-cancel">
-          ❌ Cancelar
-        </button>
+          <!-- Horarios -->
+          <div class="form-group">
+            <label>Días de la Ruta</label>
+            <select class="form-select">
+              <option>Seleccionar días...</option>
+              <option>Semana completa</option>
+              <option>Lunes a Viernes</option>
+              <option>Fin de semana</option>
+            </select>
+          </div>
+
+          <!-- Barrios Cubiertos -->
+          <div class="form-group">
+            <label>Barrios Cubiertos</label>
+            <div class="barrios-list">
+              <div *ngFor="let b of barriosSeleccionados" class="barrio-item">
+                <span>{{ b }}</span>
+                <button (click)="quitarBarrio(b)" class="remove-btn">✕</button>
+              </div>
+              <div *ngIf="barriosSeleccionados.length === 0" class="barrio-empty">
+                Sin barrios seleccionados
+              </div>
+            </div>
+            <button (click)="agregarBarrioManual()" class="btn-add-barrio">+ Agregar Barrio</button>
+          </div>
+
+          <!-- Botón de confirmación -->
+          <div class="config-footer">
+            <button (click)="cancelarDibujo()" class="btn-cancel">Cancelar</button>
+            <button 
+              (click)="finalizarRuta()" 
+              [disabled]="currentRoutePoints.length < 2"
+              class="btn-save" 
+              [class.btn-disabled]="currentRoutePoints.length < 2">
+              Guardar Ruta ✓
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

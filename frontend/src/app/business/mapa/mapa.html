@@ -1,10 +1,9 @@
 <!-- mapa.html -->
 <div id="map"></div>
-<div *ngIf="drawingRoute" class="map-control-group">
-  <div class="map-control-btn cancel" (click)="cancelarDibujo()">
-    ❌ Cancelar
-  </div>
+
+<!-- Botón flotante para finalizar ruta (solo visible al dibujar) -->
+@if (drawingRoute) {
   <div class="map-control-btn" (click)="toggleDrawingMode()">
     ✅ Finalizar Ruta
   </div>
-</div>
+}

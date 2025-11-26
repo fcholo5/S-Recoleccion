@@ -1,15 +1,16 @@
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 import { Auth } from '../../services/auth';
 
-export const AuthGuard = () => {
+export const AuthGuard = (): boolean | UrlTree => {
   const auth = inject(Auth);
   const router = inject(Router);
 
+  // Si está autenticado → permite el acceso
   if (auth.isAuthenticated()) {
     return true;
   }
 
-  router.navigate(['/login']);
-  return false;
+  // Si NO está autenticado → redirige al login
+  return router.parseUrl('/login');
 };

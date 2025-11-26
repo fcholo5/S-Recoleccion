@@ -1,29 +1,24 @@
-import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
 
 @Component({
   selector: 'app-mapa',
   templateUrl: './mapa.html',
-  styleUrls: ['./mapa.scss'],
-  imports: [CommonModule]
+  styleUrls: ['./mapa.scss']
 })
 export class MapaPage implements AfterViewInit, OnDestroy {
 
   private map!: L.Map;
   private userMarker!: L.Marker;
   private perfil_id: string = 'dc5fc78f-cd98-4296-94ec-18400859c8e7';
-  private apiBase: string = 'http:/api';
+  private apiBase: string = 'http://apirecoleccion.gonzaloandreslucio.com/api'; // Asegúrate de usar HTTP si la API no tiene HTTPS
 
+  // Estado para dibujar ruta
   public drawingRoute = false;
   private currentRoutePoints: L.LatLng[] = [];
   private currentRouteLayer: L.Polyline | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {
+  constructor() {
     this.fixLeafletIcons();
   }
 
@@ -32,15 +27,6 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     this.agregarBotonCentrar();
     this.obtenerUbicacionActual();
     this.cargarRutasDesdeAPI();
-
-    // ✅ Activar modo dibujo si viene desde rutas
-    this.route.queryParams.subscribe(params => {
-      if (params['dibujar'] === '1' && !this.drawingRoute) {
-        setTimeout(() => {
-          this.toggleDrawingMode();
-        }, 600);
-      }
-    });
   }
 
   ngOnDestroy(): void {
@@ -49,18 +35,20 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     }
   }
 
+  // 🔹 Inicializar mapa
   inicializarMapa() {
     this.map = L.map('map', {
-      center: [3.895, -77.05],
+      center: [3.895, -77.05], // Buenaventura
       zoom: 13
     });
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap - Fabian Panameño'
+      attribution: '© OpenStreetMap'
     }).addTo(this.map);
   }
 
+  // 🔹 Botón centrar en ubicación
   agregarBotonCentrar() {
     const control = L.Control.extend({
       options: { position: 'topleft' },
@@ -82,9 +70,10 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     this.map.addControl(new control());
   }
 
+  // 🔹 Obtener ubicación GPS y mostrar barrio
   obtenerUbicacionActual() {
     if (!navigator.geolocation) {
-      alert("La geolocalización no está soportada.");
+      alert("La geolocalización no está soportada en este dispositivo.");
       return;
     }
 
@@ -113,6 +102,7 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     );
   }
 
+  // 🔹 Reverse geocoding para obtener barrio
   async obtenerBarrio(lat: number, lon: number): Promise<string> {
     try {
       const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
@@ -125,6 +115,7 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     }
   }
 
+  // 🔹 Cargar rutas desde la API y mostrarlas
   async cargarRutasDesdeAPI() {
     try {
       const res = await fetch(`${this.apiBase}/rutas?perfil_id=${this.perfil_id}`);
@@ -154,6 +145,7 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     }
   }
 
+  // 🔧 Fix de iconos de Leaflet
   private fixLeafletIcons() {
     const iconRetinaUrl = 'assets/img/marker-icon-2x.png';
     const iconUrl = 'assets/img/marker-icon.png';
@@ -170,7 +162,8 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     L.Marker.prototype.options.icon = defaultIcon;
   }
 
-  // 🖊 DIBUJO DE RUTA
+  // 🖊 DIBUJO DE RUTA — Métodos
+
   toggleDrawingMode() {
     if (this.drawingRoute) {
       this.finalizarRuta();
@@ -183,7 +176,7 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     this.drawingRoute = true;
     this.currentRoutePoints = [];
     this.map.on('click', this.onMapClick, this);
-    alert('Haga clic en el mapa para agregar puntos. Luego haga clic en "Finalizar Ruta" para guardar.');
+    alert('Haga clic en el mapa para agregar puntos a la ruta. Luego haga clic en "Finalizar Ruta" para guardar.');
   }
 
   onMapClick(e: L.LeafletMouseEvent) {
@@ -210,7 +203,7 @@ export class MapaPage implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const coordinates = this.currentRoutePoints.map(p => [p.lng, p.lat] as [number, number]);
+    const coordinates = this.currentRoutePoints.map(p => [p.lng, p.lat] as [number, number]); // [lon, lat]
 
     const geojsonLine = {
       type: 'LineString' as const,
@@ -232,7 +225,9 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     try {
       const response = await fetch(`${this.apiBase}/rutas`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(payload)
       });
 
@@ -244,10 +239,7 @@ export class MapaPage implements AfterViewInit, OnDestroy {
             layer.bindPopup(`🛣 Ruta: ${nombre}`);
           }
         }).addTo(this.map);
-
         this.cancelarDibujo();
-        // ✅ Redirigir de vuelta a rutas
-        this.router.navigate(['/rutas']);
       } else {
         const error = await response.json();
         console.error('Error API:', error);

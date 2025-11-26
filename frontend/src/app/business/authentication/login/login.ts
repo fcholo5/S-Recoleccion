@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Auth } from '../../../services/auth';  // <-- IMPORTANTE
+import { Auth } from '../../../services/auth';
 
 @Component({
   selector: 'app-login',
@@ -12,12 +12,13 @@ import { Auth } from '../../../services/auth';  // <-- IMPORTANTE
   styleUrls: ['./login.scss'],
 })
 export class Login {
-[x: string]: any;
+irRegistro() {
+throw new Error('Method not implemented.');
+}
 
   email: string = '';
   password: string = '';
 
-  // Inyección moderna de Angular 16+
   private auth = inject(Auth);
   private router = inject(Router);
 
@@ -38,9 +39,19 @@ export class Login {
       next: (response) => {
         console.log('LOGIN OK:', response);
 
-        // Laravel devuelve: success, role, token
-        if (response.success === 1 && response.token) {
-          // Guardado del token ya lo hace el servicio
+        /**
+         * IMPORTANTE:
+         * Tu backend devuelve:
+         * {
+         *   success: 1,
+         *   role: "...",
+         *   data: "TOKEN"
+         * }
+         *
+         * El token VIENE EN "data"
+         */
+        if (response.success === 1 && response.data) {
+          console.log('Redirigiendo al dashboard...');
           this.router.navigate(['/dashboard']);
         } else {
           this.errorMessage = 'Respuesta inesperada del servidor.';
@@ -48,6 +59,7 @@ export class Login {
 
         this.loading = false;
       },
+
       error: (err) => {
         console.error('ERROR LOGIN:', err);
         this.errorMessage = err.message || 'Error inesperado al iniciar sesión.';
