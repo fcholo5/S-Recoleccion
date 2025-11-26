@@ -1,14 +1,14 @@
 // src/app/business/rutas/rutas.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
-import { FormsModule } from '@angular/forms'; // ✅ Importa FormsModule
+import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import * as L from 'leaflet';
 
 @Component({
   selector: 'app-rutas',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule], // ✅ Incluye FormsModule aquí
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './rutas.html',
   styleUrls: ['./rutas.scss']
 })
@@ -33,9 +33,10 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
   currentRouteLayer: L.Polyline | null = null;
   map!: L.Map;
 
-  // ✅ Propiedades que faltaban
+  // Propiedades para edición/visualización
   nombreTemporal: string = '';
   barriosSeleccionados: string[] = [];
+  rutaActual: any = null; // Ruta que se está editando o viendo
 
   constructor(private http: HttpClient) {}
 
@@ -55,25 +56,25 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  cargarRutas() {
-    this.loading = true;
-    this.error = null;
+ cargarRutas() {
+  this.loading = true;
+  this.error = null;
 
-    this.http.get<{ data: any[] }>(`${this.apiBase}/rutas`, { 
-      params: { perfil_id: this.perfil_id } 
-    }).subscribe({
-      next: (resp) => {
-        this.rutas = resp.data || [];
-        this.filtrarRutas();
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error al cargar rutas:', err);
-        this.error = 'No se pudieron cargar las rutas.';
-        this.loading = false;
-      }
-    });
-  }
+  this.http.get<{ data: any[] }>(`${this.apiBase}/rutas`, {
+    params: { perfil_id: this.perfil_id }
+  }).subscribe({
+    next: (resp) => {
+      this.rutas = resp.data || [];
+      this.filtrarRutas();
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Error al cargar rutas:', err);
+      this.error = 'No se pudieron cargar las rutas.';
+      this.loading = false;
+    }
+  });
+}
 
   // --- PAGINACIÓN Y FILTROS ---
   onSearch() {
@@ -163,7 +164,6 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // ✅ Método que faltaba
   calcularLongitudActual(): number {
     if (this.currentRoutePoints.length < 2) return 0;
     let total = 0;
@@ -192,8 +192,9 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     return 0;
   }
 
-  // 🖊 MODO DIBUJO EMbebido
+  // 🖊 MODO DIBUJO
   abrirModalDibujo() {
+    this.rutaActual = null;
     this.showMapModal = true;
     this.drawingRoute = true;
     this.currentRoutePoints = [];
@@ -202,6 +203,49 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => {
       this.inicializarMapa();
     }, 100);
+  }
+
+  // 👁️ VER RUTA EN MAPA
+  verEnMapa(ruta: any) {
+    this.rutaActual = ruta;
+    this.showMapModal = true;
+    this.drawingRoute = false;
+    this.currentRoutePoints = [];
+    this.cargarPuntosDeRuta(ruta);
+    setTimeout(() => {
+      this.inicializarMapa();
+    }, 100);
+  }
+
+  // ✏️ EDITAR RUTA
+  editarRuta(ruta: any) {
+    this.rutaActual = ruta;
+    this.showMapModal = true;
+    this.drawingRoute = false;
+    this.currentRoutePoints = [];
+    this.cargarPuntosDeRuta(ruta);
+    this.nombreTemporal = ruta.nombre_ruta;
+    this.barriosSeleccionados = this.obtenerBarrios(ruta);
+    setTimeout(() => {
+      this.inicializarMapa();
+    }, 100);
+  }
+
+  cargarPuntosDeRuta(ruta: any) {
+    try {
+      const geojson = typeof ruta.shape === 'string' ? JSON.parse(ruta.shape) : ruta.shape;
+      if (geojson.type === 'LineString') {
+        this.currentRoutePoints = geojson.coordinates.map((coord: [number, number]) => 
+          L.latLng(coord[1], coord[0])
+        );
+      } else if (geojson.type === 'MultiLineString' && geojson.coordinates?.[0]) {
+        this.currentRoutePoints = geojson.coordinates[0].map((coord: [number, number]) => 
+          L.latLng(coord[1], coord[0])
+        );
+      }
+    } catch (e) {
+      console.error('Error al cargar puntos de ruta:', e);
+    }
   }
 
   inicializarMapa() {
@@ -214,13 +258,20 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
       zoom: 13
     });
 
-    // ✅ Corregido: URL sin espacios
+    // ✅ CORREGIDO: URL sin espacios
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
     }).addTo(this.map);
 
-    this.map.on('click', this.onMapClick.bind(this));
+    if (this.drawingRoute) {
+      // Modo dibujo
+      this.map.on('click', this.onMapClick.bind(this));
+    } else {
+      // Modo edición/visualización
+      this.dibujarRutaEdicion();
+    }
+    
     this.obtenerUbicacionActual();
   }
 
@@ -236,6 +287,54 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
       weight: 4,
       dashArray: '5,5'
     }).addTo(this.map);
+  }
+
+  dibujarRutaEdicion() {
+    // Limpiar capas anteriores
+    this.map.eachLayer(layer => {
+      if (layer instanceof L.Polyline || layer instanceof L.Marker) {
+        this.map.removeLayer(layer);
+      }
+    });
+
+    if (this.currentRoutePoints.length === 0) return;
+
+    // Dibujar línea
+    const polyline = L.polyline(this.currentRoutePoints, {
+      color: this.drawingRoute ? 'red' : '#2ecc71',
+      weight: 4
+    }).addTo(this.map);
+
+    // Si es modo edición, añadir marcadores clickeables
+    if (this.rutaActual && this.rutaActual.id) {
+      this.currentRoutePoints.forEach((latlng, index) => {
+        const marker = L.marker(latlng, {
+          draggable: true,
+          title: `Punto ${index + 1}`
+        }).addTo(this.map);
+
+        // Eliminar punto al hacer clic
+        marker.on('click', () => {
+          if (this.currentRoutePoints.length <= 2) {
+            alert('La ruta debe tener al menos 2 puntos');
+            return;
+          }
+          this.currentRoutePoints.splice(index, 1);
+          this.dibujarRutaEdicion();
+        });
+
+        // Mover punto al arrastrar
+        marker.on('dragend', (e) => {
+          this.currentRoutePoints[index] = e.target.getLatLng();
+        });
+      });
+    }
+
+    // Centrar en la ruta
+    if (this.currentRoutePoints.length > 0) {
+      const bounds = L.latLngBounds(this.currentRoutePoints);
+      this.map.fitBounds(bounds, { padding: [50, 50] });
+    }
   }
 
   finalizarRuta() {
@@ -256,7 +355,8 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     const payload = {
       nombre_ruta: nombre,
       perfil_id: this.perfil_id,
-      shape: geojsonLine
+      shape: geojsonLine,
+      barrios: this.barriosSeleccionados
     };
 
     this.http.post(`${this.apiBase}/rutas`, payload).subscribe({
@@ -278,6 +378,27 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  guardarEdicion() {
+    // La API del profesor no tiene PUT, así que creamos una nueva ruta
+    if (confirm('¿Desea guardar los cambios? Se creará una nueva ruta con los cambios.')) {
+      this.finalizarRuta();
+    }
+  }
+
+  // 🗑️ ELIMINAR RUTA
+  eliminarRuta(id: string) {
+    if (!confirm('¿Está seguro de eliminar esta ruta?')) return;
+    
+    // La API del profesor NO tiene endpoint de eliminación
+    // Mostramos mensaje y recargamos
+    alert('⚠️ La eliminación real no está implementada ...');
+    
+    // Simular eliminación en el frontend
+    this.rutas = this.rutas.filter(r => r.id !== id);
+    this.filtrarRutas();
+    this.cerrarModal();
+  }
+
   cancelarDibujo() {
     this.cerrarModal();
   }
@@ -285,6 +406,7 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
   cerrarModal() {
     this.showMapModal = false;
     this.drawingRoute = false;
+    this.rutaActual = null;
     if (this.map) {
       this.map.remove();
       this.map = undefined!;
@@ -309,7 +431,16 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  // ✅ Métodos que faltaban
+  // Métodos auxiliares
+  obtenerBarrios(ruta: any): string[] {
+    try {
+      if (ruta.barrios) {
+        return typeof ruta.barrios === 'string' ? JSON.parse(ruta.barrios) : ruta.barrios;
+      }
+    } catch (e) {}
+    return [];
+  }
+
   quitarBarrio(barrio: string) {
     this.barriosSeleccionados = this.barriosSeleccionados.filter(b => b !== barrio);
   }
@@ -320,5 +451,4 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.barriosSeleccionados.push(barrio);
     }
   }
-  
 }

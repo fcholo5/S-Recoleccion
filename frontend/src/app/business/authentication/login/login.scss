@@ -1,6 +1,4 @@
-/* ------------------------------- */
 /* VARIABLES DE COLOR */
-/* ------------------------------- */
 $primary-green: #5ebd50;
 $secondary-green: #7cc769;
 $bg-right: #f5f7fa;
@@ -12,38 +10,38 @@ $social-shadow: rgba(0, 0, 0, 0.08);
 $fb-color: #1877F2;
 $google-color: #DB4437;
 
+/* LOGIN WRAPPER */
 .login-wrapper {
+  display: flex;
+  flex-wrap: wrap;
   width: 100%;
   max-width: 1200px;
-  height: 650px;
-  margin: 40px auto;
-  display: flex;
-  overflow: hidden;
+  margin: 20px auto;
   border-radius: 25px;
-  background: #ffffff;
+  overflow: hidden;
+  background: #fff;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  min-height: 600px;
 
-  /* ------------------------------- */
   /* PANEL IZQUIERDO */
-  /* ------------------------------- */
   .left-panel {
     flex: 1;
+    min-width: 300px;
     background: linear-gradient(145deg, $bg-left, $secondary-green);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 40px;
+    padding: 30px;
     text-align: center;
     color: white;
-    box-shadow: inset -5px 0 30px rgba(0, 0, 0, 0.1);
 
     .truck-img {
-      width: 250px;
-      height: 250px;
-      object-fit: cover;
-      border-radius: 25px;
-      margin-bottom: 25px;
+      width: 70%;
+      max-width: 300px;
+      height: auto;
+      border-radius: 20px;
+      margin-bottom: 20px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
       transition: transform 0.3s ease;
       &:hover {
@@ -52,53 +50,51 @@ $google-color: #DB4437;
     }
 
     .welcome-title {
-      font-size: 34px;
+      font-size: 2rem;
       font-weight: 700;
-      margin-bottom: 15px;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      margin-bottom: 10px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
     .welcome-text {
-      width: 75%;
-      font-size: 18px;
+      font-size: 1rem;
       line-height: 1.5;
+      width: 80%;
+      max-width: 280px;
       color: #e8f0ea;
     }
   }
 
-  /* ------------------------------- */
   /* PANEL DERECHO */
-  /* ------------------------------- */
   .right-panel {
     flex: 1;
-    padding: 70px 60px;
-    background: $bg-right;
+    min-width: 300px;
+    padding: 30px 40px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    background: $bg-right;
 
     .title {
-      font-size: 34px;
+      font-size: 2rem;
       font-weight: bold;
-      margin-bottom: 35px;
+      margin-bottom: 25px;
       color: $text-color;
     }
 
     .input-group {
       position: relative;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
 
       input {
         width: 100%;
-        padding: 14px 50px 14px 15px;
-        border-radius: 15px;
+        padding: 12px 45px 12px 15px;
+        border-radius: 12px;
         border: 1px solid $input-border;
-        background: white;
         font-size: 16px;
-        transition: all 0.3s ease;
         &:focus {
           border-color: $primary-green;
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
       }
 
@@ -112,115 +108,204 @@ $google-color: #DB4437;
       }
     }
 
-    .options {
-      display: flex;
-      justify-content: space-between;
-      font-size: 14px;
-      margin-bottom: 20px;
-      color: $text-color;
-    }
-
     .btn-login {
       width: 100%;
-      padding: 16px 0;
+      padding: 14px 0;
+      margin-top: 10px;
       background: linear-gradient(135deg, $secondary-green, $primary-green);
-      color: white;
-      font-size: 18px;
-      font-weight: 600;
-      border: none;
       border-radius: 25px;
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
-      margin-top: 15px;
       transition: all 0.3s ease;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 
       &:hover {
-        transform: translateY(-3px);
+        transform: translateY(-2px);
         box-shadow: 0 12px 25px $btn-hover-shadow;
       }
     }
 
     .divider {
       text-align: center;
-      margin: 25px 0;
+      margin: 20px 0;
       color: #888;
     }
 
     .social-buttons {
       display: flex;
-      justify-content: space-between;
-      gap: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
 
       button {
         flex: 1;
-        padding: 14px 0;
+        min-width: 45%;
+        padding: 10px 0;
         border-radius: 25px;
         border: none;
-        background: white;
         display: flex;
-        align-items: center;
         justify-content: center;
-        gap: 12px;
-        font-size: 16px;
-        font-weight: 500;
+        align-items: center;
+        gap: 10px;
         cursor: pointer;
-        transition: all 0.3s ease;
+        font-size: 14px;
+        font-weight: 500;
         box-shadow: 0 5px 15px $social-shadow;
+        transition: all 0.3s ease;
 
         &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+          transform: translateY(-1px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.12);
         }
 
         &.fb {
           color: $fb-color;
         }
-
         &.google {
           color: $google-color;
         }
 
         img {
-          width: 18px;
-          height: 18px;
-          object-fit: contain;
+          width: 16px;
+          height: 16px;
         }
+      }
+    }
 
-        img + span,
-        img + * {
-          margin-left: 8px;
+    .create-account {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #666;
+
+      a {
+        color: $primary-green;
+        font-weight: 600;
+        text-decoration: none;
+        &:hover {
+          color: $secondary-green;
+          text-decoration: underline;
         }
       }
     }
   }
 }
-.left-panel {
-  .app-name {
-    font-size: 36px;
-    font-weight: 800;
-    margin-bottom: 20px;
-    color: #fff;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Tablets y móviles grandes */
+@media (max-width: 1024px) {
+  .login-wrapper {
+    flex-direction: column;
+    min-height: auto;
+
+    .left-panel,
+    .right-panel {
+      width: 100%;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .left-panel .truck-img {
+      max-width: 200px;
+      margin-bottom: 15px;
+    }
+
+    .right-panel .title {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
   }
 }
-.right-panel {
-  .create-account {
-    margin-top: 25px;
-    font-size: 15px;
-    text-align: center;
-    color: #666;
 
-    a {
-      color: $primary-green;
-      font-weight: 600;
-      text-decoration: none;
-      transition: color 0.3s ease;
+/* Móviles pequeños */
+@media (max-width: 768px) {
+  .login-wrapper {
+    .left-panel {
+      padding: 20px;
 
-      &:hover {
-        color: $secondary-green;
-        text-decoration: underline;
+      .welcome-title {
+        font-size: 1.5rem;
+      }
+
+      .welcome-text {
+        font-size: 0.9rem;
+      }
+
+      .truck-img {
+        max-width: 150px;
+        margin-bottom: 15px;
+      }
+    }
+
+    .right-panel {
+      padding: 20px;
+
+      .title {
+        font-size: 1.5rem;
+      }
+
+      .input-group input {
+        padding: 10px 40px 10px 12px;
+        font-size: 14px;
+      }
+
+      .btn-login {
+        font-size: 0.95rem;
+        padding: 12px 0;
+      }
+
+      .social-buttons button {
+        font-size: 13px;
+        padding: 10px 0;
       }
     }
   }
 }
 
+/* Móviles muy pequeños */
+@media (max-width: 480px) {
+  .login-wrapper {
+    flex-direction: column;
+
+    .left-panel,
+    .right-panel {
+      width: 100%;
+      padding: 15px;
+    }
+
+    .left-panel .truck-img {
+      max-width: 120px;
+      margin-bottom: 10px;
+    }
+
+    .left-panel .welcome-title {
+      font-size: 1.2rem;
+    }
+
+    .left-panel .welcome-text {
+      font-size: 0.8rem;
+    }
+
+    .right-panel .title {
+      font-size: 1.2rem;
+    }
+
+    .input-group input {
+      font-size: 13px;
+      padding: 8px 35px 8px 10px;
+    }
+
+    .btn-login {
+      font-size: 0.9rem;
+      padding: 10px 0;
+    }
+
+    .social-buttons button {
+      font-size: 12px;
+      padding: 8px 0;
+    }
+  }
+}
