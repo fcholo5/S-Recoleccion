@@ -1,9 +1,30 @@
-<!-- mapa.html -->
-<div id="map"></div>
-
-<!-- Botón flotante para finalizar ruta (solo visible al dibujar) -->
-@if (drawingRoute) {
-  <div class="map-control-btn" (click)="toggleDrawingMode()">
-    ✅ Finalizar Ruta
+<!-- src/app/business/mapa/mapa.html -->
+<div class="mapa-container">
+  <div class="header">
+    <h1>🗺️ Visualización de Rutas </h1>
   </div>
-}
+
+  <div class="content">
+    <!-- Selector de rutas -->
+    <div class="selector-section">
+      <label for="ruta">Seleccionar Ruta:</label>
+      <select id="ruta" (change)="onRutaChange($event)" class="form-select">
+        <option value="">Seleccione una ruta</option>
+        <option *ngFor="let ruta of rutas; let i = index" [value]="i">
+          {{ ruta.nombre_ruta }}
+        </option>
+      </select>
+    </div>
+    <!-- Mapa -->
+    <div class="map-section">
+      <div id="map" class="map-container"></div>
+      
+      <!-- Botón para dibujar (si lo necesitas) -->
+      <div class="map-control" *ngIf="drawingRoute">
+        <button (click)="toggleDrawingMode()" class="btn-finalizar">
+          ✅ Finalizar Ruta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

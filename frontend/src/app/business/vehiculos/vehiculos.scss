@@ -1,85 +1,245 @@
 .vehiculos-container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 25px;
   background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  font-family: "Inter", sans-serif;
+  color: #444;
 
-  .titulo {
-    text-align: center;
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    color: #2c3e50;
-  }
+  /* ---------- HEADER ---------- */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
 
-  .loader {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #3498db;
-  }
-
-  .tabla {
-    width: 100%;
-    border-collapse: collapse;
-
-    th,
-    td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid #eaeaea;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f7f9fa;
+    h1 {
+      font-size: 26px;
       font-weight: 600;
-      color: #34495e;
+      color: #222;
     }
 
-    tr:hover {
-      background-color: #f3f8ff;
-      transition: background-color 0.3s;
-    }
-
-    .acciones {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .btn {
-      padding: 0.4rem 0.8rem;
+    .btn-create {
+      background: #43c152;
+      color: #fff;
       border: none;
-      border-radius: 0.4rem;
+      padding: 10px 18px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: all 0.2s ease;
+      font-size: 15px;
+      font-weight: 600;
+      transition: 0.2s;
 
-      &.editar {
-        background-color: #3498db;
-        color: white;
+      &:hover {
+        background: #3ab149;
+      }
+    }
+  }
+
+  /* ---------- FORM PANEL ---------- */
+  .form-panel {
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .btn-close {
+        font-size: 24px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #777;
 
         &:hover {
-          background-color: #2980b9;
+          color: #333;
+        }
+      }
+    }
+
+    .form-body {
+      margin-top: 15px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 18px;
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+
+        label {
+          font-weight: 600;
+          margin-bottom: 5px;
+        }
+
+        .form-input {
+          padding: 10px;
+          border-radius: 8px;
+          border: 1px solid #ccc;
+          font-size: 14px;
+        }
+      }
+    }
+
+    .form-footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+
+      .btn-cancel {
+        background: #ddd;
+        padding: 10px 18px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+
+        &:hover {
+          background: #ccc;
         }
       }
 
-      &.eliminar {
-        background-color: #e74c3c;
-        color: white;
+      .btn-save {
+        background: #43c152;
+        color: #fff;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
 
         &:hover {
-          background-color: #c0392b;
+          background: #38ac48;
         }
       }
     }
   }
 
-  .no-resultados {
-    text-align: center;
-    color: #7f8c8d;
-    font-style: italic;
-    margin-top: 1rem;
+  /* ---------- LISTA / TABLA ---------- */
+  .vehiculos-list {
+    margin-top: 10px;
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      font-size: 15px;
+
+      thead {
+        background: #e9ecef;
+
+        th {
+          text-align: left;
+          padding: 14px;
+          font-weight: 600;
+          color: #333;
+        }
+      }
+
+      tbody tr {
+        border-bottom: 1px solid #efefef;
+
+        &:nth-child(even) {
+          background: #fafafa;
+        }
+
+        td {
+          padding: 12px;
+        }
+
+        .status-active {
+          color: #2ecc71;
+          font-weight: 600;
+        }
+
+        .status-inactive {
+          color: #e74c3c;
+          font-weight: 600;
+        }
+
+        .actions {
+          display: flex;
+          gap: 10px;
+
+          button {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+
+            &.btn-active {
+              background: #def5e0;
+              color: #2ecc71;
+            }
+
+            &.btn-inactive {
+              background: #ffe0e0;
+              color: #e74c3c;
+            }
+
+            &.btn-delete {
+              background: #eee;
+              color: #444;
+
+              &:hover {
+                background: #e1e1e1;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 768px) {
+    padding: 15px;
+
+    .header {
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+    }
+
+    table thead {
+      display: none;
+    }
+
+    table tbody tr {
+      display: block;
+      margin-bottom: 15px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 5px;
+
+        &::before {
+          content: attr(data-label);
+          font-weight: 600;
+          color: #333;
+        }
+      }
+    }
   }
 }

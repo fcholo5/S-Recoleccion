@@ -1,44 +1,88 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+// src/app/business/mapa/mapa.ts
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import * as L from 'leaflet';
 
 @Component({
   selector: 'app-mapa',
+  standalone: true,
+  imports: [CommonModule, HttpClientModule],
   templateUrl: './mapa.html',
   styleUrls: ['./mapa.scss']
 })
-export class MapaPage implements AfterViewInit, OnDestroy {
+export class MapaComponent implements OnInit, OnDestroy {
 
-  private map!: L.Map;
-  private userMarker!: L.Marker;
-  private perfil_id: string = 'dc5fc78f-cd98-4296-94ec-18400859c8e7';
-  private apiBase: string = 'http://apirecoleccion.gonzaloandreslucio.com/api'; // Asegúrate de usar HTTP si la API no tiene HTTPS
+  private perfil_id = 'dc5fc78f-cd98-4296-94ec-18400859c8e7';
+  private apiBase = '/api';
 
-  // Estado para dibujar ruta
-  public drawingRoute = false;
-  private currentRoutePoints: L.LatLng[] = [];
-  private currentRouteLayer: L.Polyline | null = null;
+  // Datos
+  rutas: any[] = [];
+  calles: any[] = [];
+  recorridos: any[] = [];
+  vehiculos: any[] = [];
 
-  constructor() {
-    this.fixLeafletIcons();
-  }
+  // Mapa
+  map!: L.Map;
+  rutaLayer: any = null;
+  callesLayers: L.GeoJSON[] = [];
+  recorridoLayers: L.GeoJSON[] = [];
+  vehiculoMarkers: L.Marker[] = [];
 
-  ngAfterViewInit() {
+  // Dibujo
+  drawingRoute = false;
+  currentRoutePoints: L.LatLng[] = [];
+  currentRouteLayer: L.Polyline | null = null;
+
+  // Intervalo de actualización
+  private intervalId: any;
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit() {
     this.inicializarMapa();
-    this.agregarBotonCentrar();
-    this.obtenerUbicacionActual();
-    this.cargarRutasDesdeAPI();
+    this.cargarRecorridos();
+    this.cargarRutas();
+    this.cargarVehiculos();
+    this.cargarCalles();
+
+    // Actualizar cada 30 segundos
+    this.intervalId = setInterval(() => {
+      this.cargarRecorridos();
+    }, 30000);
   }
 
   ngOnDestroy(): void {
     if (this.map) {
       this.map.remove();
     }
+    this.limpiarCapas();
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
   }
 
-  // 🔹 Inicializar mapa
+  limpiarCapas() {
+    this.callesLayers.forEach(layer => {
+      if (this.map.hasLayer(layer)) {
+        this.map.removeLayer(layer);
+      }
+    });
+    this.recorridoLayers.forEach(layer => {
+      if (this.map.hasLayer(layer)) {
+        this.map.removeLayer(layer);
+      }
+    });
+    this.vehiculoMarkers.forEach(marker => {
+      if (this.map.hasLayer(marker)) {
+        this.map.removeLayer(marker);
+      }
+    });
+  }
+
   inicializarMapa() {
     this.map = L.map('map', {
-      center: [3.895, -77.05], // Buenaventura
+      center: [3.895, -77.05],
       zoom: 13
     });
 
@@ -48,122 +92,203 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     }).addTo(this.map);
   }
 
-  // 🔹 Botón centrar en ubicación
-  agregarBotonCentrar() {
-    const control = L.Control.extend({
-      options: { position: 'topleft' },
-      onAdd: (map: L.Map) => {
-        const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-        div.style.background = '#fff';
-        div.style.padding = '5px';
-        div.style.cursor = 'pointer';
-        div.innerHTML = '📍 Mi ubicación';
-        div.onclick = () => {
-          if (this.userMarker) {
-            this.map.setView(this.userMarker.getLatLng(), 16);
+  cargarRecorridos() {
+    this.http.get<{ data: any[] }>(`${this.apiBase}/misrecorridos`, {
+      params: { perfil_id: this.perfil_id }
+    }).subscribe({
+      next: (resp) => {
+        this.recorridos = resp.data || [];
+        this.dibujarRecorridosActivos();
+      },
+      error: (err) => {
+        console.error('Error al cargar recorridos:', err);
+      }
+    });
+  }
+
+  cargarRutas() {
+    this.http.get<{ data: any[] }>(`${this.apiBase}/rutas`, {
+      params: { perfil_id: this.perfil_id }
+    }).subscribe({
+      next: (resp) => {
+        this.rutas = resp.data || [];
+        if (this.rutas.length > 0 && this.recorridos.length === 0) {
+          this.mostrarRuta(this.rutas[0]);
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar rutas:', err);
+      }
+    });
+  }
+
+  cargarVehiculos() {
+    this.http.get<{ data: any[] }>(`${this.apiBase}/vehiculos`, {
+      params: { perfil_id: this.perfil_id }
+    }).subscribe({
+      next: (resp) => {
+        this.vehiculos = resp.data || [];
+      },
+      error: (err) => {
+        console.error('Error al cargar vehículos:', err);
+      }
+    });
+  }
+
+  cargarCalles() {
+    this.http.get<{ data: any[] }>(`${this.apiBase}/calles`).subscribe({
+      next: (resp) => {
+        this.calles = resp.data || [];
+        this.dibujarCalles();
+      },
+      error: (err) => {
+        console.error('Error al cargar calles:', err);
+      }
+    });
+  }
+
+  // Mostrar recorridos activos con camiones
+  dibujarRecorridosActivos() {
+    // Limpiar capas anteriores
+    this.recorridoLayers.forEach(layer => {
+      if (this.map.hasLayer(layer)) {
+        this.map.removeLayer(layer);
+      }
+    });
+    this.recorridoLayers = [];
+
+    this.vehiculoMarkers.forEach(marker => {
+      if (this.map.hasLayer(marker)) {
+        this.map.removeLayer(marker);
+      }
+    });
+    this.vehiculoMarkers = [];
+
+    // Filtrar recorridos activos
+    const recorridosActivos = this.recorridos.filter(r => r.estado === 'En Curso');
+
+    // Colores para las rutas
+    const colors = ['#2ecc71', '#3498db', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
+
+    recorridosActivos.forEach((reco, index) => {
+      try {
+        // Dibujar la ruta
+        const ruta = this.rutas.find(r => r.id === reco.ruta_id);
+        if (!ruta) return;
+
+        const geojson = typeof ruta.shape === 'string' ? JSON.parse(ruta.shape) : ruta.shape;
+        const color = colors[index % colors.length];
+
+        const layer = L.geoJSON(geojson, {
+          style: {
+            color: color,
+            weight: 4,
+            opacity: 0.8
+          },
+          onEachFeature: (feature, layer) => {
+            layer.bindPopup(`<strong>Ruta:</strong> ${ruta.nombre_ruta}<br><strong>Vehículo:</strong> ${this.getNombreVehiculo(reco.vehiculo_id)}`);
           }
-        };
-        return div;
+        }).addTo(this.map);
+
+        this.recorridoLayers.push(layer);
+
+        // Mostrar camión en la última posición
+        if (reco.posiciones && reco.posiciones.length > 0) {
+          const ultimaPos = reco.posiciones[reco.posiciones.length - 1];
+          const marker = L.marker([ultimaPos.lat, ultimaPos.lon], {
+            icon: L.divIcon({
+              className: 'camion-marker',
+              html: `<div style="background:${color};color:white;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:20px;">🚚</div>`,
+              iconSize: [40, 40]
+            }),
+            title: `Vehículo: ${this.getNombreVehiculo(reco.vehiculo_id)}`
+          }).addTo(this.map);
+
+          this.vehiculoMarkers.push(marker);
+        }
+      } catch (e) {
+        console.warn(`Error al dibujar recorrido ${reco.id}:`, e);
       }
     });
 
-    this.map.addControl(new control());
-  }
-
-  // 🔹 Obtener ubicación GPS y mostrar barrio
-  obtenerUbicacionActual() {
-    if (!navigator.geolocation) {
-      alert("La geolocalización no está soportada en este dispositivo.");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        const posicion = L.latLng(lat, lon);
-
-        if (!this.userMarker) {
-          this.userMarker = L.marker(posicion).addTo(this.map);
-        } else {
-          this.userMarker.setLatLng(posicion);
-        }
-
-        this.map.setView(posicion, 16);
-
-        const barrio = await this.obtenerBarrio(lat, lon);
-        this.userMarker.bindPopup(`📍 Estás aquí<br>🗺 Barrio: ${barrio}`).openPopup();
-      },
-      (err) => {
-        console.error("Error al obtener ubicación:", err);
-        alert("No se pudo obtener la ubicación GPS.");
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-    );
-  }
-
-  // 🔹 Reverse geocoding para obtener barrio
-  async obtenerBarrio(lat: number, lon: number): Promise<string> {
-    try {
-      const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
-      const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
-      const data = await response.json();
-      return data.address?.neighbourhood || data.address?.suburb || data.address?.city_district || "Desconocido";
-    } catch (error) {
-      console.error("Error al obtener barrio:", error);
-      return "Desconocido";
+    // Centrar el mapa
+    if (this.recorridoLayers.length > 0) {
+      const bounds = L.featureGroup(this.recorridoLayers).getBounds();
+      this.map.fitBounds(bounds, { padding: [50, 50] });
     }
   }
 
-  // 🔹 Cargar rutas desde la API y mostrarlas
-  async cargarRutasDesdeAPI() {
+  // Métodos existentes
+  mostrarRuta(ruta: any) {
+    if (this.rutaLayer) {
+      this.map.removeLayer(this.rutaLayer);
+    }
+
     try {
-      const res = await fetch(`${this.apiBase}/rutas?perfil_id=${this.perfil_id}`);
-      const data = await res.json();
-      if (!data.data) return;
-
-      data.data.forEach((ruta: any) => {
-        if (!ruta.shape) return;
-        let geojson;
-        try {
-          geojson = typeof ruta.shape === 'string' ? JSON.parse(ruta.shape) : ruta.shape;
-        } catch {
-          console.warn("GeoJSON inválido en ruta:", ruta.nombre_ruta);
-          return;
+      const geojson = typeof ruta.shape === 'string' ? JSON.parse(ruta.shape) : ruta.shape;
+      this.rutaLayer = L.geoJSON(geojson, {
+        style: {
+          color: '#2ecc71',
+          weight: 4,
+          opacity: 0.8
         }
+      }).addTo(this.map);
 
-        const color = ruta.color_hex || '#3388ff';
-        L.geoJSON(geojson, {
-          style: { color, weight: 4, opacity: 0.7 },
+      const bounds = this.rutaLayer.getBounds();
+      this.map.fitBounds(bounds, { padding: [50, 50] });
+    } catch (e) {
+      console.warn('Error al dibujar ruta:', e);
+    }
+  }
+
+  centrarCalle(calle: any) {
+    try {
+      const geojson = typeof calle.shape === 'string' ? JSON.parse(calle.shape) : calle.shape;
+      const layer = L.geoJSON(geojson);
+      const bounds = layer.getBounds();
+      this.map.fitBounds(bounds, { padding: [50, 50] });
+    } catch (e) {
+      console.warn('Error al centrar calle:', e);
+    }
+  }
+
+  onRutaChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    const index = parseInt(selectElement.value, 10);
+    if (!isNaN(index) && this.rutas[index]) {
+      this.mostrarRuta(this.rutas[index]);
+    }
+  }
+
+  dibujarCalles() {
+    this.callesLayers.forEach(layer => {
+      if (this.map.hasLayer(layer)) {
+        this.map.removeLayer(layer);
+      }
+    });
+    this.callesLayers = [];
+
+    this.calles.forEach(calle => {
+      try {
+        const geojson = typeof calle.shape === 'string' ? JSON.parse(calle.shape) : calle.shape;
+        const layer = L.geoJSON(geojson, {
+          style: {
+            color: '#9b59b6',
+            weight: 2,
+            opacity: 0.6
+          },
           onEachFeature: (feature, layer) => {
-            layer.bindPopup(`🛣 Ruta: ${ruta.nombre_ruta}`);
+            layer.bindPopup(`<strong>${calle.nombre}</strong>`);
           }
         }).addTo(this.map);
-      });
-    } catch (error) {
-      console.error("Error al cargar rutas desde la API:", error);
-    }
-  }
-
-  // 🔧 Fix de iconos de Leaflet
-  private fixLeafletIcons() {
-    const iconRetinaUrl = 'assets/img/marker-icon-2x.png';
-    const iconUrl = 'assets/img/marker-icon.png';
-    const shadowUrl = 'assets/img/marker-shadow.png';
-
-    const defaultIcon = L.icon({
-      iconRetinaUrl,
-      iconUrl,
-      shadowUrl,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41]
+        this.callesLayers.push(layer);
+      } catch (e) {
+        console.warn(`Error al dibujar calle ${calle.id}:`, e);
+      }
     });
-
-    L.Marker.prototype.options.icon = defaultIcon;
   }
 
-  // 🖊 DIBUJO DE RUTA — Métodos
-
+  // Métodos para dibujo
   toggleDrawingMode() {
     if (this.drawingRoute) {
       this.finalizarRuta();
@@ -176,79 +301,29 @@ export class MapaPage implements AfterViewInit, OnDestroy {
     this.drawingRoute = true;
     this.currentRoutePoints = [];
     this.map.on('click', this.onMapClick, this);
-    alert('Haga clic en el mapa para agregar puntos a la ruta. Luego haga clic en "Finalizar Ruta" para guardar.');
   }
 
-  onMapClick(e: L.LeafletMouseEvent) {
+  onMapClick = (e: L.LeafletMouseEvent) => {
     if (!this.drawingRoute) return;
-
-    const latlng = e.latlng;
-    this.currentRoutePoints.push(latlng);
-
+    this.currentRoutePoints.push(e.latlng);
+    
     if (this.currentRouteLayer) {
       this.map.removeLayer(this.currentRouteLayer);
     }
-
+    
     this.currentRouteLayer = L.polyline(this.currentRoutePoints, {
       color: 'red',
-      weight: 4,
-      dashArray: '5,5'
+      weight: 4
     }).addTo(this.map);
-  }
+  };
 
-  async finalizarRuta() {
+  finalizarRuta() {
     if (this.currentRoutePoints.length < 2) {
       alert('La ruta debe tener al menos 2 puntos.');
       this.cancelarDibujo();
       return;
     }
-
-    const coordinates = this.currentRoutePoints.map(p => [p.lng, p.lat] as [number, number]); // [lon, lat]
-
-    const geojsonLine = {
-      type: 'LineString' as const,
-      coordinates: coordinates
-    };
-
-    const nombre = prompt('Nombre de la ruta:');
-    if (!nombre) {
-      this.cancelarDibujo();
-      return;
-    }
-
-    const payload = {
-      nombre_ruta: nombre,
-      perfil_id: this.perfil_id,
-      shape: geojsonLine
-    };
-
-    try {
-      const response = await fetch(`${this.apiBase}/rutas`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (response.ok) {
-        alert('✅ Ruta creada exitosamente');
-        L.geoJSON(geojsonLine, {
-          style: { color: '#3388ff', weight: 4 },
-          onEachFeature: (feature, layer) => {
-            layer.bindPopup(`🛣 Ruta: ${nombre}`);
-          }
-        }).addTo(this.map);
-        this.cancelarDibujo();
-      } else {
-        const error = await response.json();
-        console.error('Error API:', error);
-        alert('❌ Error al crear la ruta');
-      }
-    } catch (err) {
-      console.error('Error al enviar ruta:', err);
-      alert('Error de red al crear la ruta');
-    }
+    this.cancelarDibujo();
   }
 
   cancelarDibujo() {
@@ -259,5 +334,11 @@ export class MapaPage implements AfterViewInit, OnDestroy {
       this.currentRouteLayer = null;
     }
     this.currentRoutePoints = [];
+  }
+
+  // Método auxiliar
+  getNombreVehiculo(id: string): string {
+    const vehiculo = this.vehiculos.find(v => v.id === id);
+    return vehiculo ? `${vehiculo.placa} - ${vehiculo.marca}` : 'Desconocido';
   }
 }

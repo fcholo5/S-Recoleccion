@@ -1,0 +1,183 @@
+/* src/app/business/recorrido/recorrido.scss */
+
+.recorrido-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+  margin-bottom: 24px;
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+}
+
+.content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.form-section {
+  h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #2c3e50;
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  .form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    &:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-start, .btn-stop {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-start {
+  background: #2ecc71;
+  color: white;
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  &:not(:disabled):hover {
+    background: #27ae60;
+  }
+}
+
+.btn-stop {
+  background: #e74c3c;
+  color: white;
+  &:hover {
+    background: #c0392b;
+  }
+}
+
+.status-section {
+  margin: 24px 0;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.status-card {
+  h3 {
+    margin-top: 0;
+    color: #2c3e50;
+  }
+  p {
+    margin: 8px 0;
+    color: #475569;
+  }
+  .position-info {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #cbd5e1;
+  }
+}
+
+.action-section {
+  margin: 24px 0;
+  text-align: center;
+}
+
+.recorridos-list {
+  margin: 24px 0;
+  h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #2c3e50;
+  }
+}
+
+.recorrido-item {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e9ecef;
+  
+  .recorrido-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    
+    span {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    
+    .status-active {
+      color: #166534;
+    }
+    
+    .status-inactive {
+      color: #dc2626;
+    }
+  }
+  
+  .recorrido-details {
+    p {
+      margin: 4px 0;
+      color: #6c757d;
+      font-size: 14px;
+    }
+  }
+}
+
+.map-section {
+  margin-top: 24px;
+}
+
+.map-container {
+  height: 400px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Estilos para el marcador personalizado */
+.recorrido-marker {
+  z-index: 1000;
+}

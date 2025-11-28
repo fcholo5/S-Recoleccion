@@ -1,0 +1,89 @@
+<!-- src/app/business/recorrido/recorrido.html -->
+<div class="recorrido-container">
+  <div class="header">
+    <h1>📍 Gestión de Recorridos</h1>
+  </div>
+
+  <div class="content">
+    <!-- Formulario para iniciar recorrido -->
+    <div class="form-section" *ngIf="!recorridoActivo">
+      <h2>Iniciar Nuevo Recorrido</h2>
+      
+      <div class="form-group">
+        <label for="ruta">Ruta *</label>
+        <select id="ruta" [(ngModel)]="rutaSeleccionada" class="form-select">
+          <option value="">Seleccione una ruta</option>
+          <option *ngFor="let ruta of rutas" [value]="ruta.id">
+            {{ ruta.nombre_ruta }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="vehiculo">Vehículo *</label>
+        <select id="vehiculo" [(ngModel)]="vehiculoSeleccionado" class="form-select">
+          <option value="">Seleccione un vehículo</option>
+          <option *ngFor="let vehiculo of vehiculos" [value]="vehiculo.id">
+            {{ vehiculo.placa }} - {{ vehiculo.marca }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button 
+          (click)="iniciarRecorrido()" 
+          [disabled]="!rutaSeleccionada || !vehiculoSeleccionado"
+          class="btn-start">
+          🚀 Iniciar Recorrido
+        </button>
+      </div>
+    </div>
+
+    <!-- Estado del recorrido activo -->
+    <div class="status-section" *ngIf="recorridoActivo">
+      <div class="status-card">
+        <h3>Estado del Recorrido</h3>
+        <p><strong>ID:</strong> {{ recorridoActivo.id }}</p>
+        <p><strong>Ruta:</strong> {{ getNombreRuta(recorridoActivo.ruta_id) }}</p>
+        <p><strong>Vehículo:</strong> {{ getNombreVehiculo(recorridoActivo.vehiculo_id) }}</p>
+        <p><strong>Estado:</strong> {{ getEstadoRecorrido(recorridoActivo.estado) }}</p>
+        
+        <div class="position-info" *ngIf="posicionActual">
+          <p><strong>Última posición:</strong></p>
+          <p>Lat: {{ posicionActual.lat | number:'1.6-6' }}</p>
+          <p>Lng: {{ posicionActual.lng | number:'1.6-6' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón para finalizar recorrido -->
+    <div class="action-section" *ngIf="recorridoActivo">
+      <button 
+        (click)="finalizarRecorrido()"
+        class="btn-stop">
+        🛑 Finalizar Recorrido
+      </button>
+    </div>
+
+    <!-- Lista de recorridos -->
+    <div class="recorridos-list" *ngIf="recorridos.length > 0">
+      <h3>Historial de Recorridos</h3>
+      <div class="recorrido-item" *ngFor="let recorrido of recorridos">
+        <div class="recorrido-header">
+          <span>{{ getNombreRuta(recorrido.ruta_id) }}</span>
+          <span>{{ getEstadoRecorrido(recorrido.estado) }}</span>
+        </div>
+        <div class="recorrido-details">
+          <p><strong>Vehículo:</strong> {{ getNombreVehiculo(recorrido.vehiculo_id) }}</p>
+          <p><strong>Inicio:</strong> {{ recorrido.ts_inicio | date:'short' }}</p>
+          <p *ngIf="recorrido.ts_fin"><strong>Fin:</strong> {{ recorrido.ts_fin | date:'short' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mapa -->
+    <div class="map-section">
+      <div id="map" class="map-container"></div>
+    </div>
+  </div>
+</div>

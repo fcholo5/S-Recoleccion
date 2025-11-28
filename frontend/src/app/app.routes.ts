@@ -1,58 +1,49 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './core/guards/auth.guard';
 import { LayoutComponent } from './shared/layout/layout';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const appRoutes: Routes = [
-
-  // REDIRECCIÓN INICIAL
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  // LOGIN SIN LAYOUT
-  {
+  { 
     path: 'login',
     loadComponent: () =>
-      import('./business/authentication/login/login')
-        .then(m => m.Login)
+      import('./business/authentication/login/login').then(m => m.Login)
   },
 
-  // TODAS LAS RUTAS PROTEGIDAS BAJO EL LAYOUT
   {
     path: '',
     component: LayoutComponent,
-    canActivate: [AuthGuard],
+    canMatch: [AuthGuard], // ✅ usa canMatch aquí
     children: [
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
-
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./business/dashboard/dashboard')
-            .then(m => m.DashboardComponent)
+          import('./business/dashboard/dashboard').then(m => m.DashboardComponent)
       },
-
       {
         path: 'usuarios',
         loadComponent: () =>
-          import('./business/usuarios/usuarios')
-            .then(m => m.Usuarios)
+          import('./business/usuarios/usuarios').then(m => m.Usuarios)
       },
-
       {
         path: 'rutas',
         loadComponent: () =>
-          import('./business/rutas/rutas')
-            .then(m => m.RutasComponent)
+          import('./business/rutas/rutas').then(m => m.RutasComponent)
       },
-      {path: '**', redirectTo:'dashboard'},
-
-      // Aquí puedes agregar más páginas internas...
+      {
+        path: 'vehiculos',
+        loadComponent: () =>
+          import('./business/vehiculos/vehiculos').then(m => m.VehiculosComponent)
+      },
+      {
+        path: 'recorridos',
+        loadComponent: () =>
+          import('./business/recorridos/recorridos').then(m => m.RecorridosComponent)
+      }
     ]
   },
 
-  // CUALQUIER RUTA NO ENCONTRADA → LOGIN
   { path: '**', redirectTo: 'login' }
 ];

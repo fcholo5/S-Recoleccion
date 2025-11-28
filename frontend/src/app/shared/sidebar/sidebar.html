@@ -1,34 +1,39 @@
 <div class="sidebar">
 
-  <!-- Encabezado -->
+  <!-- ENCABEZADO -->
   <div class="sidebar-header">
-    
     <img src="assets/img/leaves-3487571_1280.jpg" alt="Logo" class="brand-logo">
     <span class="brand">BuenaAseo</span>
   </div>
 
-  <!-- Cuerpo del sidebar -->
+  <!-- CUERPO DEL SIDEBAR -->
   <div class="sidebar-body">
     <ul class="menu">
+
       <li routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        Dashboard 
-        
+        📊 Dashboard
       </li>
+
       <li routerLink="/rutas" routerLinkActive="active">
-        Rutas y Geocercas
+        📍 Gestión de Rutas
       </li>
+
       <li routerLink="/vehiculos" routerLinkActive="active">
-        Control Vehicular
+        🚚 Control Vehicular
       </li>
-      <li routerLink="/historial" routerLinkActive="active">
-        Historial y Vehículos
+    
+      <li routerLink="/recorridos" routerLinkActive="active">
+        📝 Recorridos 
       </li>
+
       <li routerLink="/usuarios" routerLinkActive="active">
-        Usuarios y Roles
+        👤 Usuarios y Roles
       </li>
+
       <li routerLink="/configuracion" routerLinkActive="active">
-        Configuración
+        ⚙️ Configuración
       </li>
+
     </ul>
   </div>
 
