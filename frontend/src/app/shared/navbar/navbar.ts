@@ -1,5 +1,7 @@
 // src/app/shared/navbar/navbar.ts
-import { Component, Input } from '@angular/core';
+
+import { Component, inject } from '@angular/core';
+import { Auth } from '../../services/auth';
 
 @Component({
   selector: 'app-navbar',
@@ -8,6 +10,15 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./navbar.scss']
 })
 export class Navbar {
-  @Input() title = 'Dashboard';
-pageTitle: any;
+  private auth = inject(Auth);
+
+  get userDisplayName(): string {
+    const name = this.auth.getName() || 'Usuario';
+    const role = this.auth.getRole() || '';
+    return role ? `${name} — ${role}` : name;
+  }
+
+  logout() {
+    this.auth.logout();
+  }
 }

@@ -18,11 +18,12 @@
           class="search-input">
         <span class="search-icon"></span>
       </div>
-      <select class="filter-select" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
-        <option value="4">Mostrar: 4</option>
-        <option value="25">Mostrar: 25</option>
-        <option value="50">Mostrar: 50</option>
-      </select>
+
+        <select class="filter-select" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
+          <option value="4">Mostrar: 4</option>
+          <option value="25">Mostrar: 25</option>
+          <option value="50">Mostrar: 50</option>
+        </select>
     </div>
   </div>
 
@@ -46,7 +47,7 @@
           </td>
           <td>{{ calcularLongitud(ruta) }}</td>
           <td><span class="badge-points">{{ contarPuntos(ruta) }} pts</span></td>
-          <td><span class="badge-hora">06:00 AM</span></td>
+          <td><span class="badge-hora">00:00 AM</span></td>
 
           <!-- NUEVA IMPLEMENTACIÓN AQUÍ -->
           <td>

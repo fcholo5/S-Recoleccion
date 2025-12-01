@@ -6,11 +6,10 @@ export const AuthGuard = (): boolean | UrlTree => {
   const auth = inject(Auth);
   const router = inject(Router);
 
-  // Si está autenticado → permite el acceso
-  if (auth.isAuthenticated()) {
-    return true;
+  // Redirigir si no hay token válido
+  if (!auth.getToken()) {
+    return router.parseUrl('/login');
   }
 
-  // Si NO está autenticado → redirige al login
-  return router.parseUrl('/login');
+  return true;
 };

@@ -2,15 +2,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 55px;
-  padding: 0 20px;
+  padding: 0 24px;
+  height: 60px;
   background: white;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #eaeaea;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  position: fixed;
+  top: 0;
+  left: 240px;
+  right: 0;
+  z-index: 1000;
 
-  input {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    width: 280px;
+  .left {
+    input {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      width: 240px;
+    }
+  }
+
+  .right {
+    .user-name {
+      font-weight: 500;
+      color: #2c3e50;
+    }
   }
 }

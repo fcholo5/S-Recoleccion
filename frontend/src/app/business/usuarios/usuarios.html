@@ -1,1 +1,87 @@
-+
+<div class="usuarios-container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Gestión de Usuarios</h1>
+    <button class="btn-create" (click)="abrirModalCrear()">+ Crear Usuario</button>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="errorMessage" class="error-box">
+    {{ errorMessage }}
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="loading">Cargando usuarios...</div>
+
+  <!-- TABLA DE USUARIOS -->
+  <table class="usuarios-table" *ngIf="!loading && usuarios.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let u of usuarios">
+        <td>{{ u.id }}</td>
+        <td>{{ u.name }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.role?.name || 'Sin rol' }}</td>
+        <td class="acciones">
+          <button class="btn-edit" (click)="abrirModalEditar(u)">Editar</button>
+          <button class="btn-pass" (click)="cambiarContrasena(u)">Password</button>
+          <button class="btn-delete" (click)="eliminarUsuario(u.id!)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SIN USUARIOS -->
+  <p *ngIf="!loading && usuarios.length === 0" class="no-data">
+    No hay usuarios registrados.
+  </p>
+
+  <!-- MODAL CREAR/EDITAR -->
+  <div class="modal-overlay" *ngIf="mostrarModal">
+    <div class="modal">
+
+      <h2>{{ editando ? 'Editar Usuario' : 'Crear Usuario' }}</h2>
+
+      <form (ngSubmit)="guardarUsuario()" #userForm="ngForm">
+
+        <label>Nombre:</label>
+        <input type="text" [(ngModel)]="usuarioActual.name" name="name" required />
+
+        <label>Email:</label>
+        <input type="email" [(ngModel)]="usuarioActual.email" name="email" required />
+
+        <label>Rol:</label>
+        <select [(ngModel)]="usuarioActual.role_id" name="role_id" required>
+          <option *ngFor="let r of roles" [value]="r.id">
+            {{ r.name | titlecase }}
+          </option>
+        </select>
+
+        <label *ngIf="!editando">Contraseña:</label>
+        <input *ngIf="!editando" type="password" [(ngModel)]="usuarioActual.password" name="password" required />
+
+        <div class="modal-actions">
+          <button class="btn-save" type="submit">
+            {{ editando ? 'Guardar Cambios' : 'Crear Usuario' }}
+          </button>
+
+          <button class="btn-cancel" type="button" (click)="cerrarModal()">
+            Cancelar
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</div>

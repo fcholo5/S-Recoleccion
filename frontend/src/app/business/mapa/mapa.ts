@@ -1,13 +1,14 @@
 // src/app/business/mapa/mapa.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import * as L from 'leaflet';
 
 @Component({
   selector: 'app-mapa',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './mapa.html',
   styleUrls: ['./mapa.scss']
 })
@@ -24,7 +25,7 @@ export class MapaComponent implements OnInit, OnDestroy {
 
   // Mapa
   map!: L.Map;
-  rutaLayer: any = null;
+  rutaLayer: L.GeoJSON | null = null; // Tipado correcto
   callesLayers: L.GeoJSON[] = [];
   recorridoLayers: L.GeoJSON[] = [];
   vehiculoMarkers: L.Marker[] = [];
@@ -41,15 +42,15 @@ export class MapaComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.inicializarMapa();
-    this.cargarRecorridos();
     this.cargarRutas();
     this.cargarVehiculos();
     this.cargarCalles();
+    this.cargarRecorridos();
 
-    // Actualizar cada 30 segundos
+    // Actualizar cada 5 segundos para seguimiento en vivo
     this.intervalId = setInterval(() => {
       this.cargarRecorridos();
-    }, 30000);
+    }, 5000);
   }
 
   ngOnDestroy(): void {
@@ -78,6 +79,10 @@ export class MapaComponent implements OnInit, OnDestroy {
         this.map.removeLayer(marker);
       }
     });
+    // Asegurarse de limpiar la ruta seleccionada manualmente
+    if (this.rutaLayer && this.map.hasLayer(this.rutaLayer)) {
+      this.map.removeLayer(this.rutaLayer);
+    }
   }
 
   inicializarMapa() {
@@ -90,6 +95,48 @@ export class MapaComponent implements OnInit, OnDestroy {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
     }).addTo(this.map);
+  }
+
+  cargarRutas() {
+    this.http.get<{ data: any[] }>(`${this.apiBase}/rutas`, {
+      params: { perfil_id: this.perfil_id }
+    }).subscribe({
+      next: (resp) => {
+        this.rutas = resp.data || [];
+        // ✅ NO se muestra ninguna ruta automáticamente
+      },
+      error: (err) => {
+        console.error('Error al cargar rutas:', err);
+        alert('No se pudieron cargar las rutas.');
+      }
+    });
+  }
+
+  cargarVehiculos() {
+    this.http.get<{ data: any[] }>(`${this.apiBase}/vehiculos`, {
+      params: { perfil_id: this.perfil_id }
+    }).subscribe({
+      next: (resp) => {
+        this.vehiculos = resp.data || [];
+      },
+      error: (err) => {
+        console.error('Error al cargar vehículos:', err);
+        alert('No se pudieron cargar los vehículos.');
+      }
+    });
+  }
+
+  cargarCalles() {
+    this.http.get<{ data: any[] }>(`${this.apiBase}/calles`).subscribe({
+      next: (resp) => {
+        this.calles = resp.data || [];
+        this.dibujarCalles();
+      },
+      error: (err) => {
+        console.error('Error al cargar calles:', err);
+        alert('No se pudieron cargar las calles.');
+      }
+    });
   }
 
   cargarRecorridos() {
@@ -106,50 +153,7 @@ export class MapaComponent implements OnInit, OnDestroy {
     });
   }
 
-  cargarRutas() {
-    this.http.get<{ data: any[] }>(`${this.apiBase}/rutas`, {
-      params: { perfil_id: this.perfil_id }
-    }).subscribe({
-      next: (resp) => {
-        this.rutas = resp.data || [];
-        if (this.rutas.length > 0 && this.recorridos.length === 0) {
-          this.mostrarRuta(this.rutas[0]);
-        }
-      },
-      error: (err) => {
-        console.error('Error al cargar rutas:', err);
-      }
-    });
-  }
-
-  cargarVehiculos() {
-    this.http.get<{ data: any[] }>(`${this.apiBase}/vehiculos`, {
-      params: { perfil_id: this.perfil_id }
-    }).subscribe({
-      next: (resp) => {
-        this.vehiculos = resp.data || [];
-      },
-      error: (err) => {
-        console.error('Error al cargar vehículos:', err);
-      }
-    });
-  }
-
-  cargarCalles() {
-    this.http.get<{ data: any[] }>(`${this.apiBase}/calles`).subscribe({
-      next: (resp) => {
-        this.calles = resp.data || [];
-        this.dibujarCalles();
-      },
-      error: (err) => {
-        console.error('Error al cargar calles:', err);
-      }
-    });
-  }
-
-  // Mostrar recorridos activos con camiones
   dibujarRecorridosActivos() {
-    // Limpiar capas anteriores
     this.recorridoLayers.forEach(layer => {
       if (this.map.hasLayer(layer)) {
         this.map.removeLayer(layer);
@@ -164,15 +168,11 @@ export class MapaComponent implements OnInit, OnDestroy {
     });
     this.vehiculoMarkers = [];
 
-    // Filtrar recorridos activos
     const recorridosActivos = this.recorridos.filter(r => r.estado === 'En Curso');
-
-    // Colores para las rutas
     const colors = ['#2ecc71', '#3498db', '#e74c3c', '#f39c12', '#9b59b6', '#1abc9c'];
 
     recorridosActivos.forEach((reco, index) => {
       try {
-        // Dibujar la ruta
         const ruta = this.rutas.find(r => r.id === reco.ruta_id);
         if (!ruta) return;
 
@@ -192,7 +192,6 @@ export class MapaComponent implements OnInit, OnDestroy {
 
         this.recorridoLayers.push(layer);
 
-        // Mostrar camión en la última posición
         if (reco.posiciones && reco.posiciones.length > 0) {
           const ultimaPos = reco.posiciones[reco.posiciones.length - 1];
           const marker = L.marker([ultimaPos.lat, ultimaPos.lon], {
@@ -211,17 +210,17 @@ export class MapaComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Centrar el mapa
     if (this.recorridoLayers.length > 0) {
       const bounds = L.featureGroup(this.recorridoLayers).getBounds();
       this.map.fitBounds(bounds, { padding: [50, 50] });
     }
   }
 
-  // Métodos existentes
   mostrarRuta(ruta: any) {
+    // Limpiar ruta previa
     if (this.rutaLayer) {
       this.map.removeLayer(this.rutaLayer);
+      this.rutaLayer = null;
     }
 
     try {
@@ -254,9 +253,19 @@ export class MapaComponent implements OnInit, OnDestroy {
 
   onRutaChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
-    const index = parseInt(selectElement.value, 10);
-    if (!isNaN(index) && this.rutas[index]) {
-      this.mostrarRuta(this.rutas[index]);
+    const rutaId = selectElement.value;
+
+    if (!rutaId) {
+      // Opción "Seleccione una ruta" → limpiar
+      if (this.rutaLayer) {
+        this.map.removeLayer(this.rutaLayer);
+        this.rutaLayer = null;
+      }
+    } else {
+      const ruta = this.rutas.find(r => r.id === rutaId);
+      if (ruta) {
+        this.mostrarRuta(ruta);
+      }
     }
   }
 
@@ -336,7 +345,6 @@ export class MapaComponent implements OnInit, OnDestroy {
     this.currentRoutePoints = [];
   }
 
-  // Método auxiliar
   getNombreVehiculo(id: string): string {
     const vehiculo = this.vehiculos.find(v => v.id === id);
     return vehiculo ? `${vehiculo.placa} - ${vehiculo.marca}` : 'Desconocido';

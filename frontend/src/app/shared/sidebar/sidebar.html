@@ -1,40 +1,30 @@
+<!-- src/app/shared/sidebar/sidebar.html -->
 <div class="sidebar">
-
   <!-- ENCABEZADO -->
   <div class="sidebar-header">
-    <img src="assets/img/leaves-3487571_1280.jpg" alt="Logo" class="brand-logo">
+    <img src="assets/logo.png" alt="Logo" class="brand-logo" />
     <span class="brand">BuenaAseo</span>
   </div>
 
   <!-- CUERPO DEL SIDEBAR -->
   <div class="sidebar-body">
     <ul class="menu">
+      @for (item of menuItems; track item.path) {
+        <li
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+        >
+          <span class="icon">{{ item.icon }}</span>
+          <span class="label">{{ item.label }}</span>
+        </li>
+      }
 
-      <li routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        📊 Dashboard
+      <!-- Cerrar sesión (siempre visible para autenticados) -->
+      <li (click)="logout()" class="logout-item">
+        <span class="icon">🚪</span>
+        <span class="label">Cerrar sesión</span>
       </li>
-
-      <li routerLink="/rutas" routerLinkActive="active">
-        📍 Gestión de Rutas
-      </li>
-
-      <li routerLink="/vehiculos" routerLinkActive="active">
-        🚚 Control Vehicular
-      </li>
-    
-      <li routerLink="/recorridos" routerLinkActive="active">
-        📝 Recorridos 
-      </li>
-
-      <li routerLink="/usuarios" routerLinkActive="active">
-        👤 Usuarios y Roles
-      </li>
-
-      <li routerLink="/configuracion" routerLinkActive="active">
-        ⚙️ Configuración
-      </li>
-
     </ul>
   </div>
-
 </div>

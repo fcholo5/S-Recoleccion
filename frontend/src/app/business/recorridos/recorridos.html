@@ -11,7 +11,11 @@
       
       <div class="form-group">
         <label for="ruta">Ruta *</label>
-        <select id="ruta" [(ngModel)]="rutaSeleccionada" class="form-select">
+        <select 
+          id="ruta" 
+          [(ngModel)]="rutaSeleccionada" 
+          (change)="onRutaChange()"
+          class="form-select">
           <option value="">Seleccione una ruta</option>
           <option *ngFor="let ruta of rutas" [value]="ruta.id">
             {{ ruta.nombre_ruta }}
@@ -23,8 +27,12 @@
         <label for="vehiculo">Vehículo *</label>
         <select id="vehiculo" [(ngModel)]="vehiculoSeleccionado" class="form-select">
           <option value="">Seleccione un vehículo</option>
-          <option *ngFor="let vehiculo of vehiculos" [value]="vehiculo.id">
+          <option 
+            *ngFor="let vehiculo of vehiculos" 
+            [value]="vehiculo.id"
+            [disabled]="vehiculoTieneRecorridoActivo(vehiculo.id)">
             {{ vehiculo.placa }} - {{ vehiculo.marca }}
+            <span *ngIf="vehiculoTieneRecorridoActivo(vehiculo.id)"> (ocupado)</span>
           </option>
         </select>
       </div>
@@ -43,13 +51,11 @@
     <div class="status-section" *ngIf="recorridoActivo">
       <div class="status-card">
         <h3>Estado del Recorrido</h3>
-        <p><strong>ID:</strong> {{ recorridoActivo.id }}</p>
         <p><strong>Ruta:</strong> {{ getNombreRuta(recorridoActivo.ruta_id) }}</p>
         <p><strong>Vehículo:</strong> {{ getNombreVehiculo(recorridoActivo.vehiculo_id) }}</p>
         <p><strong>Estado:</strong> {{ getEstadoRecorrido(recorridoActivo.estado) }}</p>
-        
         <div class="position-info" *ngIf="posicionActual">
-          <p><strong>Última posición:</strong></p>
+          <p><strong>Ubicación actual:</strong></p>
           <p>Lat: {{ posicionActual.lat | number:'1.6-6' }}</p>
           <p>Lng: {{ posicionActual.lng | number:'1.6-6' }}</p>
         </div>
@@ -58,15 +64,13 @@
 
     <!-- Botón para finalizar recorrido -->
     <div class="action-section" *ngIf="recorridoActivo">
-      <button 
-        (click)="finalizarRecorrido()"
-        class="btn-stop">
+      <button (click)="finalizarRecorrido()" class="btn-stop">
         🛑 Finalizar Recorrido
       </button>
     </div>
 
-    <!-- Lista de recorridos -->
-    <div class="recorridos-list" *ngIf="recorridos.length > 0">
+    <!-- Historial -->
+    <div class="recorridos-list" *ngIf="!recorridoActivo && recorridos.length > 0">
       <h3>Historial de Recorridos</h3>
       <div class="recorrido-item" *ngFor="let recorrido of recorridos">
         <div class="recorrido-header">

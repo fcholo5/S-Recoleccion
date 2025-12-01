@@ -1,3 +1,5 @@
+// src/app/services/auth.ts
+
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -8,47 +10,32 @@ import { environment } from '../../environments/environment.development';
   providedIn: 'root'
 })
 export class Auth {
-
   private httpClient = inject(HttpClient);
   private router = inject(Router);
 
   private tokenKey = 'authToken';
   private roleKey = 'authRole';
+  private nameKey = 'authName';
 
   // ======================================================
   // LOGIN
   // ======================================================
   login(email: string, password: string): Observable<any> {
-
     const url = environment.serverUrl + 'login';
-
     return this.httpClient.post<any>(url, { email, password }).pipe(
       tap(response => {
-
-        console.log('DEBUG LOGIN BACKEND:', response);
-
         if (response.success === 1 && response.data) {
-
-          // Guarda token y rol
           this.setToken(response.data);
           this.setRole(response.role);
-
-          console.log('TOKEN GUARDADO:', response.data);
-          console.log('ROL GUARDADO:', response.role);
-
-        } else {
-          console.warn('ADVERTENCIA: No llegó token en la respuesta.');
+          this.setName(response.name);
         }
       }),
       catchError((error: HttpErrorResponse) => {
         let msg = 'Error desconocido al iniciar sesión.';
-
         if (error.status === 400) msg = error.error?.message || 'Petición inválida.';
         else if (error.status === 401) msg = 'Credenciales incorrectas.';
         else if (error.status >= 500) msg = 'Error interno del servidor.';
-
         console.error('ERROR LOGIN ->', msg, error);
-
         return throwError(() => new Error(msg));
       })
     );
@@ -80,13 +67,37 @@ export class Auth {
     return localStorage.getItem(this.roleKey);
   }
 
+  // Verifica si el usuario tiene uno de los roles permitidos
+  hasAnyRole(roles: string[]): boolean {
+    const userRole = this.getRole();
+    return roles.includes(userRole as string);
+  }
+
+  // ======================================================
+  // NAME
+  // ======================================================
+  private setName(name: string): void {
+    localStorage.setItem(this.nameKey, name);
+  }
+
+  getName(): string | null {
+    return localStorage.getItem(this.nameKey);
+  }
+  getRolesDisponibles() {
+  return [
+    { id: 1, name: 'Administrador' },
+    { id: 2, name: 'Conductor' },
+    { id: 3, name: 'Cliente' }
+    ];
+  }
+
   // ======================================================
   // LOGOUT
   // ======================================================
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.roleKey);
-    console.log('Sesión cerrada. Redirigiendo a login...');
+    localStorage.removeItem(this.nameKey);
     this.router.navigate(['/login']);
   }
 }

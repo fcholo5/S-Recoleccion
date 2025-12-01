@@ -2,45 +2,46 @@
 <div class="vehiculos-container">
   <div class="header">
     <h1>🚛 Gestión de Vehículos</h1>
-    <button (click)="mostrarFormulario = true" class="btn-create" *ngIf="!mostrarFormulario">
+    <button (click)="resetFormulario(); mostrarFormulario = true; modoEdicion = false" class="btn-create" *ngIf="!mostrarFormulario">
       + Registrar Vehículo
     </button>
   </div>
 
-  <!-- Formulario de creación -->
+  <!-- Formulario -->
   <div class="form-panel" *ngIf="mostrarFormulario">
     <div class="form-header">
-      <h3>Registrar Nuevo Vehículo</h3>
-      <button (click)="mostrarFormulario = false" class="btn-close">×</button>
+      <h3>{{ modoEdicion ? 'Editar Vehículo' : 'Registrar Nuevo Vehículo' }}</h3>
+      <button (click)="resetFormulario()" class="btn-close">×</button>
     </div>
     
     <div class="form-body">
       <div class="form-group">
         <label>Placa *</label>
-        <input type="text" [(ngModel)]="nuevoVehiculo.placa" placeholder="Ej: ABC-123" class="form-input">
+        <input type="text" [(ngModel)]="placaActual" placeholder="Ej: ABC-123" class="form-input">
       </div>
       
       <div class="form-group">
         <label>Marca *</label>
-        <input type="text" [(ngModel)]="nuevoVehiculo.marca" placeholder="Ej: SUZUKI" class="form-input">
+        <input type="text" [(ngModel)]="marcaActual" placeholder="Ej: SUZUKI" class="form-input">
       </div>
       
       <div class="form-group">
         <label>Modelo *</label>
-        <input type="text" [(ngModel)]="nuevoVehiculo.modelo" placeholder="Ej: 1990" class="form-input">
+        <input type="text" [(ngModel)]="modeloActual" placeholder="Ej: 1990" class="form-input">
       </div>
       
       <div class="form-group">
         <label>
-          <input type="checkbox" [(ngModel)]="nuevoVehiculo.activo"> 
-          Activo
+          <input type="checkbox" [(ngModel)]="activoActual"> Activo
         </label>
       </div>
     </div>
     
     <div class="form-footer">
-      <button (click)="mostrarFormulario = false" class="btn-cancel">Cancelar</button>
-      <button (click)="crearVehiculo()" class="btn-save">Registrar Vehículo</button>
+      <button (click)="resetFormulario()" class="btn-cancel">Cancelar</button>
+      <button (click)="modoEdicion ? guardarEdicion() : crearVehiculo()" class="btn-save">
+        {{ modoEdicion ? 'Guardar Cambios' : 'Registrar Vehículo' }} ✓
+      </button>
     </div>
   </div>
 
@@ -58,7 +59,7 @@
 
     <div *ngIf="!loading && vehiculos.length === 0" class="message empty">
       <p>No hay vehículos registrados.</p>
-      <button (click)="mostrarFormulario = true" class="btn-create">Registrar Primer Vehículo</button>
+      <button (click)="resetFormulario(); mostrarFormulario = true; modoEdicion = false" class="btn-create">Registrar Primer Vehículo</button>
     </div>
 
     <div class="vehiculos-table" *ngIf="!loading && vehiculos.length > 0">
@@ -83,19 +84,11 @@
               </span>
             </td>
             <td class="actions">
-              <button 
-                (click)="toggleActivo(vehiculo)" 
-                [class.btn-active]="vehiculo.activo"
-                [class.btn-inactive]="!vehiculo.activo"
-                title="{{ vehiculo.activo ? 'Desactivar' : 'Activar' }}">
+              <button (click)="cambiarEstado(vehiculo)" [class.btn-active]="vehiculo.activo" [class.btn-inactive]="!vehiculo.activo" title="{{ vehiculo.activo ? 'Desactivar' : 'Activar' }}">
                 {{ vehiculo.activo ? '🟢' : '🔴' }}
               </button>
-              <button 
-                (click)="eliminarVehiculo(vehiculo.id)" 
-                class="btn-delete"
-                title="Eliminar">
-                🗑️
-              </button>
+              <button (click)="iniciarEdicion(vehiculo)" class="btn-edit" title="Editar">✏️</button>
+              <button (click)="eliminarVehiculo(vehiculo.id)" class="btn-delete" title="Eliminar">🗑️</button>
             </td>
           </tr>
         </tbody>
