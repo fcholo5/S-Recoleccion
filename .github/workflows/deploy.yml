@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       # ----------------- NODE -----------------
-      - name: ⚙️ Configurar Node.js
+      - name: ⚙ Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -29,13 +29,13 @@ jobs:
           cd ..
 
       # ----------------- BUILD FRONTEND -----------------
-      - name: 🏗️ Compilar frontend Angular
+      - name: 🏗 Compilar frontend Angular
         run: |
           cd frontend
           ng build --configuration production --base-href /
           cd ..
 
-      # ----------------- PREPARAR DEPLOY -----------------
+      # ----------------- PREPARAR ARCHIVOS FRONTEND -----------------
       - name: 🧩 Preparar archivos frontend
         run: |
           rm -rf deploy-frontend
@@ -48,8 +48,8 @@ jobs:
       - name: 🧾 Ver contenido listo para deploy
         run: ls -R deploy-frontend
 
-      # ----------------- LIMPIAR SERVIDOR -----------------
-      - name: 🧹 Limpiar contenido anterior en el servidor
+      # ----------------- LIMPIAR SOLO FRONTEND EN EL SERVIDOR -----------------
+      - name: 🧹 Limpiar carpeta frontend en servidor
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -57,10 +57,10 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || '22' }}
           script: |
-            rm -rf /var/www/fabian_site/*
-            echo "✔ Carpeta limpiada en servidor"
+            rm -rf /var/www/fabian_site/deploy-frontend/*
+            echo "✔ Carpeta frontend limpiada en servidor"
 
-      # ----------------- SUBIR ARCHIVOS -----------------
+      # ----------------- SUBIR ARCHIVOS FRONTEND -----------------
       - name: 📤 Subir frontend al servidor Apache2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -69,11 +69,11 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || '22' }}
           source: "deploy-frontend/*"
-          target: "/var/www/fabian_site/"
+          target: "/var/www/fabian_site/deploy-frontend/"
           overwrite: true
 
-      # ----------------- SSH TASKS -----------------
-      - name: ⚙️ Ajustar permisos finales
+      # ----------------- AJUSTAR PERMISOS -----------------
+      - name: ⚙ Ajustar permisos frontend
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -81,4 +81,5 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || '22' }}
           script: |
-            echo "✔ Deploy completado"
+            echo "✔ Permisos frontend ajustados"
+            echo "✔ Deploy completado sin tocar backend"
