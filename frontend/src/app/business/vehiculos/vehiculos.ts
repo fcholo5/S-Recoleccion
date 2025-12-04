@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-vehiculos',
@@ -17,7 +18,7 @@ export class VehiculosComponent implements OnInit {
   loading = true;
   error: string | null = null;
   private perfil_id = 'dc5fc78f-cd98-4296-94ec-18400859c8e7';
-  private apiBase = '/api';
+  private apiBase = environment.apiUrl;
 
   // Formulario
   editarVehiculo: any = null;

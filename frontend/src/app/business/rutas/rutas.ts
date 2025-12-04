@@ -4,6 +4,7 @@ import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import * as L from 'leaflet';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-rutas',
@@ -24,7 +25,7 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
   loading = true;
   error: string | null = null;
   private perfil_id = 'dc5fc78f-cd98-4296-94ec-18400859c8e7';
-  private apiBase = '/api';
+  private apiBase = environment.apiUrl;
 
   // Estado del mapa embebido
   showMapModal = false;
