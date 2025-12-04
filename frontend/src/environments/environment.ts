@@ -1,6 +1,5 @@
 export const environment = {
-  production: false,
-  serverUrl: 'http://localhost:8000/api/', // Cambiado para usar local
- apiUrl: 'http://apirecoleccion.gonzaloandreslucio.com/api'
-  
+  production: true,
+  serverUrl: 'https://srecoleccion.eleueleo.com/api/',
+  apiUrl: 'https://apirecoleccion.gonzaloandreslucio.com/api/'
 };
