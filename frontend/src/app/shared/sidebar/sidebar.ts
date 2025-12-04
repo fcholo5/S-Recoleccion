@@ -32,7 +32,6 @@ export class SidebarComponent {
         { icon: '📍', label: 'Gestión de Rutas', path: '/rutas', exact: false },
         { icon: '🚚', label: 'Control Vehicular', path: '/vehiculos', exact: false },
         { icon: '👤', label: 'Usuarios y Roles', path: '/usuarios', exact: false },
-        { icon: '⚙️', label: 'Configuración', path: '/configuracion', exact: false }
       );
     }
 

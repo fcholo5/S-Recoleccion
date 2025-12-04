@@ -34,8 +34,10 @@ export class VehiculosComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.cargarVehiculos();
-  }
+  this.cargarVehiculos();
+  this.resetFormulario();
+  this.cargarVehiculos();
+}
 
   cargarVehiculos() {
     this.loading = true;
@@ -125,6 +127,7 @@ export class VehiculosComponent implements OnInit {
         alert('✅ Vehículo creado exitosamente');
         this.resetFormulario();
         this.cargarVehiculos();
+        this.mostrarFormulario = false;
       },
       error: (err) => {
         console.error('Error al crear vehículo:', err);
@@ -181,25 +184,29 @@ export class VehiculosComponent implements OnInit {
     });
   }
 
-  // ✅ Eliminar vehículo
   eliminarVehiculo(id: string) {
-    if (!confirm('¿Está seguro de eliminar este vehículo?')) return;
-    
-    this.http.delete(`${this.apiBase}/vehiculos/${id}`).subscribe({
-      next: () => {
-        alert('✅ Vehículo eliminado exitosamente');
-        this.cargarVehiculos();
-      },
-      error: (err) => {
-        console.error('Error al eliminar vehículo:', err);
-        let message = 'Error al eliminar el vehículo.';
-        if (err?.error?.message) {
-          message = err.error.message;
+  if (!confirm('¿Está seguro de eliminar este vehículo?')) return;
+  
+  // ✅ Eliminar vehículo
+      this.http.delete(`${this.apiBase}/vehiculos/${id}`, {
+        params: { perfil_id: this.perfil_id }
+      }).subscribe({
+        next: () => {
+          alert('✅ Vehículo eliminado exitosamente');
+          this.cargarVehiculos();
+        },
+        error: (err) => {
+          console.error('Error al eliminar vehículo:', err);
+          let message = 'Error al eliminar el vehículo.';
+          if (err?.error?.message) {
+            message = err.error.message;
+          } else if (err?.error?.errors?.['perfil_id']) {
+            message = err.error.errors['perfil_id'][0];
+          }
+          alert('❌ ' + message);
         }
-        alert('❌ ' + message);
-      }
-    });
-  }
+      });
+    }
 
   // ✅ Cambiar estado
   cambiarEstado(vehiculo: any) {
