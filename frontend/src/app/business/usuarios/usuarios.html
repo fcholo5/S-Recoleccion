@@ -27,7 +27,7 @@
     </thead>
 
     <tbody>
-      <tr *ngFor="let u of usuarios">
+      <tr *ngFor="let u of usuarios; trackBy: trackByUserId">
         <td>{{ u.id }}</td>
         <td>{{ u.name }}</td>
         <td>{{ u.email }}</td>

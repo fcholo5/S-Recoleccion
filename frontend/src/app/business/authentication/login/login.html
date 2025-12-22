@@ -30,7 +30,15 @@
         <a href="#">¿Olvidaste tu contraseña?</a>
       </div>
 
-      <button type="submit" class="btn-login">Ingresar</button>
+      <button 
+        type="submit" 
+        class="btn-login"
+        [disabled]="loading">
+        <span *ngIf="!loading">Ingresar</span>
+        <span *ngIf="loading">
+          <i class="fas fa-spinner fa-spin"></i> Iniciando sesión...
+        </span>
+      </button>
     </form>
 
     <div class="divider">o continuar con</div>

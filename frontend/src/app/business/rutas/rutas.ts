@@ -1,15 +1,15 @@
 // src/app/business/rutas/rutas.ts
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-rutas',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './rutas.html',
   styleUrls: ['./rutas.scss']
 })
@@ -37,9 +37,12 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
   // Propiedades para edición/visualización
   nombreTemporal: string = '';
   barriosSeleccionados: string[] = [];
-  rutaActual: any = null; // Ruta que se está editando o viendo
+  rutaActual: any = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.cargarRutas();
@@ -57,25 +60,27 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
- cargarRutas() {
-  this.loading = true;
-  this.error = null;
+  cargarRutas() {
+    this.loading = true;
+    this.error = null;
 
-  this.http.get<{ data: any[] }>(`${this.apiBase}/rutas`, {
-    params: { perfil_id: this.perfil_id }
-  }).subscribe({
-    next: (resp) => {
-      this.rutas = resp.data || [];
-      this.filtrarRutas();
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Error al cargar rutas:', err);
-      this.error = 'No se pudieron cargar las rutas.';
-      this.loading = false;
-    }
-  });
-}
+    this.http.get<{ data: any[] }>(`${this.apiBase}/rutas`, {
+      params: { perfil_id: this.perfil_id }
+    }).subscribe({
+      next: (resp) => {
+        this.rutas = resp.data || [];
+        this.filtrarRutas();
+        this.loading = false;
+        this.cdr.markForCheck(); // ✅ Corrige el problema de "no muestra los datos"
+      },
+      error: (err) => {
+        console.error('Error al cargar rutas:', err);
+        this.error = 'No se pudieron cargar las rutas.';
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   // --- PAGINACIÓN Y FILTROS ---
   onSearch() {
@@ -93,7 +98,7 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.rutasFiltradas = [...this.rutas];
     } else {
       const term = this.searchTerm.toLowerCase();
-      this.rutasFiltradas = this.rutas.filter(ruta => 
+      this.rutasFiltradas = this.rutas.filter(ruta =>
         ruta.nombre_ruta?.toLowerCase().includes(term)
       );
     }
@@ -135,8 +140,9 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     return pages;
   }
 
+  // ✅ CORREGIDO: ahora devuelve string (para evitar error si id es undefined)
   trackByRuta(index: number, ruta: any): string {
-    return ruta.id || index.toString();
+    return ruta.id ? ruta.id.toString() : index.toString();
   }
 
   calcularLongitud(ruta: any): number {
@@ -236,11 +242,11 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       const geojson = typeof ruta.shape === 'string' ? JSON.parse(ruta.shape) : ruta.shape;
       if (geojson.type === 'LineString') {
-        this.currentRoutePoints = geojson.coordinates.map((coord: [number, number]) => 
+        this.currentRoutePoints = geojson.coordinates.map((coord: [number, number]) =>
           L.latLng(coord[1], coord[0])
         );
       } else if (geojson.type === 'MultiLineString' && geojson.coordinates?.[0]) {
-        this.currentRoutePoints = geojson.coordinates[0].map((coord: [number, number]) => 
+        this.currentRoutePoints = geojson.coordinates[0].map((coord: [number, number]) =>
           L.latLng(coord[1], coord[0])
         );
       }
@@ -259,20 +265,18 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
       zoom: 13
     });
 
-    // ✅ CORREGIDO: URL sin espacios
+    // ✅ CORREGIDO: URL SIN ESPACIOS
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
     }).addTo(this.map);
 
     if (this.drawingRoute) {
-      // Modo dibujo
       this.map.on('click', this.onMapClick.bind(this));
     } else {
-      // Modo edición/visualización
       this.dibujarRutaEdicion();
     }
-    
+
     this.obtenerUbicacionActual();
   }
 
@@ -291,7 +295,6 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   dibujarRutaEdicion() {
-    // Limpiar capas anteriores
     this.map.eachLayer(layer => {
       if (layer instanceof L.Polyline || layer instanceof L.Marker) {
         this.map.removeLayer(layer);
@@ -300,13 +303,11 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.currentRoutePoints.length === 0) return;
 
-    // Dibujar línea
     const polyline = L.polyline(this.currentRoutePoints, {
       color: this.drawingRoute ? 'red' : '#2ecc71',
       weight: 4
     }).addTo(this.map);
 
-    // Si es modo edición, añadir marcadores clickeables
     if (this.rutaActual && this.rutaActual.id) {
       this.currentRoutePoints.forEach((latlng, index) => {
         const marker = L.marker(latlng, {
@@ -314,7 +315,6 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
           title: `Punto ${index + 1}`
         }).addTo(this.map);
 
-        // Eliminar punto al hacer clic
         marker.on('click', () => {
           if (this.currentRoutePoints.length <= 2) {
             alert('La ruta debe tener al menos 2 puntos');
@@ -324,14 +324,12 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
           this.dibujarRutaEdicion();
         });
 
-        // Mover punto al arrastrar
         marker.on('dragend', (e) => {
           this.currentRoutePoints[index] = e.target.getLatLng();
         });
       });
     }
 
-    // Centrar en la ruta
     if (this.currentRoutePoints.length > 0) {
       const bounds = L.latLngBounds(this.currentRoutePoints);
       this.map.fitBounds(bounds, { padding: [50, 50] });
@@ -380,21 +378,16 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   guardarEdicion() {
-    // La API del profesor no tiene PUT, así que creamos una nueva ruta
     if (confirm('¿Desea guardar los cambios? Se creará una nueva ruta con los cambios.')) {
       this.finalizarRuta();
     }
   }
 
-  // 🗑️ ELIMINAR RUTA
   eliminarRuta(id: string) {
     if (!confirm('¿Está seguro de eliminar esta ruta?')) return;
     
-    // La API del profesor NO tiene endpoint de eliminación
-    // Mostramos mensaje y recargamos
-    alert('⚠️ La eliminación real no está implementada ...');
+    alert('⚠️ La eliminación real no está implementada en la API.');
     
-    // Simular eliminación en el frontend
     this.rutas = this.rutas.filter(r => r.id !== id);
     this.filtrarRutas();
     this.cerrarModal();
@@ -410,7 +403,6 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.rutaActual = null;
     if (this.map) {
       this.map.remove();
-      this.map = undefined!;
     }
     this.currentRoutePoints = [];
     this.currentRouteLayer = null;
@@ -422,8 +414,7 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
       (pos) => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
-        const posicion = L.latLng(lat, lon);
-        this.map.setView(posicion, 16);
+        this.map.setView(L.latLng(lat, lon), 16);
       },
       (err) => {
         console.error("Error al obtener ubicación:", err);
@@ -432,7 +423,6 @@ export class RutasComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  // Métodos auxiliares
   obtenerBarrios(ruta: any): string[] {
     try {
       if (ruta.barrios) {

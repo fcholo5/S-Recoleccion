@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+// src/app/business/usuarios/usuarios.ts
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { User, UserService, Role } from '../../services/usuarios';
@@ -30,7 +31,10 @@ export class Usuarios implements OnInit {
     role_id: undefined
   };
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.cargarUsuarios();
@@ -45,15 +49,19 @@ export class Usuarios implements OnInit {
   // ===================== CARGAR USUARIOS =====================
   cargarUsuarios(): void {
     this.loading = true;
+    this.errorMessage = null;
 
     this.userService.getUsuarios().subscribe({
       next: (usuarios) => {
-        this.usuarios = usuarios;
+        this.usuarios = Array.isArray(usuarios) ? usuarios : [];
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
+        console.error('Error al cargar usuarios:', err);
         this.errorMessage = err?.message || 'Error al cargar usuarios.';
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -74,8 +82,12 @@ export class Usuarios implements OnInit {
         next: () => {
           this.usuarios = this.usuarios.filter(u => u.id !== id);
           Swal.fire('Eliminado', 'Usuario eliminado correctamente', 'success');
+          this.cdr.markForCheck();
         },
-        error: (err) => Swal.fire('Error', err.message || 'Error al eliminar usuario', 'error')
+        error: (err) => {
+          console.error('Error al eliminar usuario:', err);
+          Swal.fire('Error', err.message || 'Error al eliminar usuario', 'error');
+        }
       });
     });
   }
@@ -116,7 +128,6 @@ export class Usuarios implements OnInit {
       return;
     }
 
-    // ===== EDITAR =====
     if (this.editando) {
       this.userService.actualizarUsuario(this.usuarioActual.id!, {
         name: this.usuarioActual.name!,
@@ -128,11 +139,12 @@ export class Usuarios implements OnInit {
           this.cerrarModal();
           Swal.fire('Actualizado', 'Usuario actualizado correctamente', 'success');
         },
-        error: (err) => Swal.fire('Error', err.message || 'Error al actualizar usuario', 'error')
+        error: (err) => {
+          console.error('Error al actualizar usuario:', err);
+          Swal.fire('Error', err.message || 'Error al actualizar usuario', 'error');
+        }
       });
-
     } else {
-      // ===== CREAR =====
       this.userService.crearUsuario({
         name: this.usuarioActual.name!,
         email: this.usuarioActual.email!,
@@ -144,7 +156,10 @@ export class Usuarios implements OnInit {
           this.cerrarModal();
           Swal.fire('Creado', 'Usuario creado correctamente', 'success');
         },
-        error: (err) => Swal.fire('Error', err.message || 'Error al crear usuario', 'error')
+        error: (err) => {
+          console.error('Error al crear usuario:', err);
+          Swal.fire('Error', err.message || 'Error al crear usuario', 'error');
+        }
       });
     }
   }
@@ -159,14 +174,28 @@ export class Usuarios implements OnInit {
       inputAttributes: { minlength: '6' },
       showCancelButton: true,
       confirmButtonText: 'Cambiar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => {
+        if (!value || value.length < 6) {
+          return 'La contraseña debe tener al menos 6 caracteres';
+        }
+        return null;
+      }
     }).then(result => {
       if (!result.isConfirmed || !result.value) return;
 
       this.userService.cambiarPassword(usuario.id!, '', result.value, result.value).subscribe({
         next: () => Swal.fire('Actualizado', 'Contraseña cambiada correctamente', 'success'),
-        error: (err) => Swal.fire('Error', err.message || 'Error al cambiar contraseña', 'error')
+        error: (err) => {
+          console.error('Error al cambiar contraseña:', err);
+          Swal.fire('Error', err.message || 'Error al cambiar contraseña', 'error');
+        }
       });
     });
   }
+
+  // Opcional: para mejorar rendimiento en *ngFor
+  trackByUserId(index: number, user: User): number {
+  return user.id ?? index;
+}
 }
