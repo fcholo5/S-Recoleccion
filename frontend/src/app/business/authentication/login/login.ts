@@ -12,57 +12,36 @@ import { Auth } from '../../../services/auth';
   styleUrls: ['./login.scss'],
 })
 export class Login {
-irRegistro() {
-throw new Error('Method not implemented.');
-}
-
   email: string = '';
   password: string = '';
+  loading: boolean = false;
+  errorMessage: string | null = null;
 
   private auth = inject(Auth);
   private router = inject(Router);
 
-  loading = false;
-  errorMessage: string | null = null;
-
-  onSubmit() {
+  onSubmit(): void {
     this.errorMessage = null;
-
     if (!this.email.trim() || !this.password.trim()) {
-      this.errorMessage = 'Por favor llene todos los campos.';
+      this.errorMessage = 'Ingrese correo y contraseña.';
       return;
     }
 
     this.loading = true;
 
     this.auth.login(this.email, this.password).subscribe({
-      next: (response) => {
-        console.log('LOGIN OK:', response);
-
-        /**
-         * IMPORTANTE:
-         * Tu backend devuelve:
-         * {
-         *   success: 1,
-         *   role: "...",
-         *   data: "TOKEN"
-         * }
-         *
-         * El token VIENE EN "data"
-         */
-        if (response.success === 1 && response.data) {
-          console.log('Redirigiendo al dashboard...');
+      next: (response: any) => {
+        // ✅ ASIGNA EL MENSAJE DE ERROR INMEDIATAMENTE, ANTES DE QUITAR EL LOADING
+        if (response?.success === 1) {
           this.router.navigate(['/dashboard']);
         } else {
-          this.errorMessage = 'Respuesta inesperada del servidor.';
+          this.errorMessage = response?.message || 'Correo y/o contraseña incorrectos.';
         }
-
+        // 👇 Solo después, quita el loading (para que el botón vuelva a ser clickeable)
         this.loading = false;
       },
-
-      error: (err) => {
-        console.error('ERROR LOGIN:', err);
-        this.errorMessage = err.message || 'Error inesperado al iniciar sesión.';
+      error: () => {
+        this.errorMessage = 'No se pudo conectar con el servidor.';
         this.loading = false;
       }
     });

@@ -49,7 +49,7 @@ $google-color: #DB4437;
       }
     }
 
-    .welcome-title {
+    .app-name {
       font-size: 2rem;
       font-weight: 700;
       margin-bottom: 10px;
@@ -75,7 +75,7 @@ $google-color: #DB4437;
     justify-content: center;
     background: $bg-right;
 
-    .title {
+    .login-title {
       font-size: 2rem;
       font-weight: bold;
       margin-bottom: 25px;
@@ -126,6 +126,20 @@ $google-color: #DB4437;
         transform: translateY(-2px);
         box-shadow: 0 12px 25px $btn-hover-shadow;
       }
+    }
+
+    /* ✅ MENSAJE DE ERROR: SIN ANIMACIÓN, APARECE INMEDIATAMENTE */
+    .error-message {
+      margin-top: 15px;
+      padding: 12px 15px;
+      background-color: #fdf2f2;
+      color: #e74c3c;
+      border: 1px solid #f8c8c8;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(231, 76, 60, 0.1);
+      // 👇 Sin animación: aparece al instante
     }
 
     .divider {
@@ -195,117 +209,48 @@ $google-color: #DB4437;
 
 /* ========== RESPONSIVE DESIGN ========== */
 
-/* Tablets y móviles grandes */
 @media (max-width: 1024px) {
   .login-wrapper {
     flex-direction: column;
     min-height: auto;
-
-    .left-panel,
-    .right-panel {
+    .left-panel, .right-panel {
       width: 100%;
       padding: 25px;
       text-align: center;
     }
-
-    .left-panel .truck-img {
-      max-width: 200px;
-      margin-bottom: 15px;
-    }
-
-    .right-panel .title {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
-    }
+    .left-panel .truck-img { max-width: 200px; margin-bottom: 15px; }
+    .right-panel .login-title { font-size: 1.8rem; margin-bottom: 20px; }
   }
 }
 
-/* Móviles pequeños */
 @media (max-width: 768px) {
   .login-wrapper {
     .left-panel {
       padding: 20px;
-
-      .welcome-title {
-        font-size: 1.5rem;
-      }
-
-      .welcome-text {
-        font-size: 0.9rem;
-      }
-
-      .truck-img {
-        max-width: 150px;
-        margin-bottom: 15px;
-      }
+      .app-name { font-size: 1.5rem; }
+      .welcome-text { font-size: 0.9rem; }
+      .truck-img { max-width: 150px; margin-bottom: 15px; }
     }
-
     .right-panel {
       padding: 20px;
-
-      .title {
-        font-size: 1.5rem;
-      }
-
-      .input-group input {
-        padding: 10px 40px 10px 12px;
-        font-size: 14px;
-      }
-
-      .btn-login {
-        font-size: 0.95rem;
-        padding: 12px 0;
-      }
-
-      .social-buttons button {
-        font-size: 13px;
-        padding: 10px 0;
-      }
+      .login-title { font-size: 1.5rem; }
+      .input-group input { padding: 10px 40px 10px 12px; font-size: 14px; }
+      .btn-login { font-size: 0.95rem; padding: 12px 0; }
+      .social-buttons button { font-size: 13px; padding: 10px 0; }
     }
   }
 }
 
-/* Móviles muy pequeños */
 @media (max-width: 480px) {
   .login-wrapper {
-    flex-direction: column;
-
-    .left-panel,
-    .right-panel {
-      width: 100%;
-      padding: 15px;
-    }
-
-    .left-panel .truck-img {
-      max-width: 120px;
-      margin-bottom: 10px;
-    }
-
-    .left-panel .welcome-title {
-      font-size: 1.2rem;
-    }
-
-    .left-panel .welcome-text {
-      font-size: 0.8rem;
-    }
-
-    .right-panel .title {
-      font-size: 1.2rem;
-    }
-
-    .input-group input {
-      font-size: 13px;
-      padding: 8px 35px 8px 10px;
-    }
-
-    .btn-login {
-      font-size: 0.9rem;
-      padding: 10px 0;
-    }
-
-    .social-buttons button {
-      font-size: 12px;
-      padding: 8px 0;
-    }
+    .left-panel, .right-panel { padding: 15px; }
+    .left-panel .truck-img { max-width: 120px; margin-bottom: 10px; }
+    .left-panel .app-name { font-size: 1.2rem; }
+    .left-panel .welcome-text { font-size: 0.8rem; }
+    .right-panel .login-title { font-size: 1.2rem; }
+    .input-group input { font-size: 13px; padding: 8px 35px 8px 10px; }
+    .btn-login { font-size: 0.9rem; padding: 10px 0; }
+    .social-buttons button { font-size: 12px; padding: 8px 0; }
   }
+  
 }

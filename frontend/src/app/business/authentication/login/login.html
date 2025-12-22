@@ -16,13 +16,27 @@
     <form (ngSubmit)="onSubmit()">
 
       <div class="input-group">
-        <i class="fa-regular fa-envelope icon"></i>
-        <input type="email" placeholder="Correo Electrónico" [(ngModel)]="email" name="email" required />
+        <i class="fa-regarregular fa-envelope icon"></i>
+        <input
+          type="email"
+          placeholder="Correo Electrónico"
+          [(ngModel)]="email"
+          name="email"
+          required
+          (input)="errorMessage = null"
+        />
       </div>
 
       <div class="input-group">
         <i class="fa-solid fa-lock icon"></i>
-        <input type="password" placeholder="Contraseña" [(ngModel)]="password" name="password" required />
+        <input
+          type="password"
+          placeholder="Contraseña"
+          [(ngModel)]="password"
+          name="password"
+          required
+          (input)="errorMessage = null"
+        />
       </div>
 
       <div class="options-wrapper">
@@ -30,6 +44,7 @@
         <a href="#">¿Olvidaste tu contraseña?</a>
       </div>
 
+    <!-- Dentro del form -->
       <button 
         type="submit" 
         class="btn-login"
@@ -39,6 +54,12 @@
           <i class="fas fa-spinner fa-spin"></i> Iniciando sesión...
         </span>
       </button>
+
+      <!-- ✅ MENSAJE DE ERROR: visible INMEDIATAMENTE -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
     </form>
 
     <div class="divider">o continuar con</div>
